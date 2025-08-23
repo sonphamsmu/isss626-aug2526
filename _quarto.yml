@@ -1,0 +1,25 @@
+project:
+  type: website
+
+website:
+  title: "isss626-aug2526"
+  navbar:
+    right:
+      - menu:
+        - text: Exercises
+        - text: In-class
+    left: 
+      - href: index.qmd
+        text: Home
+      - about.qmd
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+    toc: true
+
+editor: visual
+

@@ -1,0 +1,20 @@
+---
+title: "Hands-on Exercise 1"
+author: "PHAM Hung Son"
+date: "Aug 23, 2025"
+date-modified: "last-modified"
+format: html
+execute: 
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+---
+
+## Overview
+
+Blah blah
+
+### Getting Started
+
+Heheheheheheheh
