@@ -13,8 +13,4 @@ execute:
 
 ## Overview
 
-Blah blah blah
-
 ### Getting Started
-
-Heheheheheheheh
