@@ -14,3 +14,9 @@ execute:
 ## Overview
 
 ### Getting Started
+
+![](Rplot01.png)
+
+![](Rplot02.png)
+
+![](Rplot03.png)
