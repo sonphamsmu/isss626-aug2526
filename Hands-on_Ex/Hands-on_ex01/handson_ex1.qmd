@@ -4,19 +4,186 @@ author: "PHAM Hung Son"
 date: "Aug 23, 2025"
 date-modified: "last-modified"
 format: html
-execute: 
-  echo: true
-  eval: true
-  warning: false
-  freeze: true
 ---
 
 ## Overview
 
-### Getting Started
+### Part 1: Data Wrangling
 
-![](Rplot01.png)
+```{r}
+pacman::p_load(sf, tidyverse)
+mpsz = st_read(dsn = "C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex01/data/geospatial", 
+                  layer = "MP14_SUBZONE_WEB_PL")
+```
 
-![](Rplot02.png)
+```{r}
+cyclingpath = st_read(dsn = "C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex01/data/geospatial", 
+                         layer = "CyclingPathGazette")
+```
 
-![](Rplot03.png)
+```{r}
+preschool = st_read("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex01/data/geospatial/PreSchoolsLocation.kml")
+```
+
+```{r}
+st_geometry(mpsz)
+```
+
+```{r}
+glimpse(mpsz)
+```
+
+```{r}
+head(mpsz, n=5)  
+```
+
+```{r}
+plot(mpsz)
+```
+
+```{r}
+plot(st_geometry(mpsz))
+```
+
+```{r}
+plot(st_geometry(mpsz))
+plot(st_geometry(preschool), 
+     add = TRUE)
+```
+
+```{r}
+st_crs(mpsz)
+```
+
+```{r}
+mpsz <- st_set_crs(mpsz, 3414)
+```
+
+```{r}
+st_crs(mpsz)
+```
+
+```{r}
+preschool <- st_transform(preschool, 
+                              crs = 3414)
+```
+
+```{r}
+plot(st_geometry(mpsz))
+plot(st_geometry(preschool), add = TRUE)
+```
+
+```{r}
+listings <- read_csv("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex01/data/aspatial/listings.csv")
+```
+
+```{r}
+list(listings) 
+```
+
+```{r}
+listings_sf <- st_as_sf(listings, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+glimpse(listings_sf)
+```
+
+```{r}
+plot(st_geometry(mpsz))
+plot(st_geometry(listings_sf), add = TRUE)
+```
+
+### **Use case 1: Land acquisition analysis**
+
+```{r}
+buffer_cycling <- st_buffer(
+  cyclingpath, dist=5, nQuadSegs = 30)
+```
+
+```{r}
+buffer_cycling$AREA <- st_area(buffer_cycling)
+```
+
+```{r}
+sum(buffer_cycling$AREA)
+```
+
+```{r}
+mpsz_selected <- mpsz %>%
+  filter(SUBZONE_N == "TAMPINES WEST") 
+```
+
+```{r}
+st_crs(buffer_cycling)
+```
+
+```{r}
+buffer_cycling <- st_transform(buffer_cycling, 
+                              crs = 3414)
+```
+
+```{r}
+buffer_cycling_selected <- st_intersection(
+  buffer_cycling, mpsz_selected)
+```
+
+```{r}
+plot(st_geometry(buffer_cycling_selected))
+```
+
+### **Use case 2: To determine the number of pre-schools by planning subzone**
+
+```{r}
+mpsz$`PreSch Count`<- lengths(st_intersects(mpsz, preschool))
+```
+
+```{r}
+summary(mpsz$`PreSch Count`)
+```
+
+```{r}
+top_n(mpsz, 1, `PreSch Count`)
+```
+
+```{r}
+mpsz$Area <- mpsz %>%
+  st_area()
+```
+
+```{r}
+mpsz <- mpsz %>%
+  mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
+```
+
+```{r}
+hist(mpsz$`PreSch Density`)
+```
+
+```{r}
+ggplot(data=mpsz, 
+       aes(x= as.numeric(`PreSch Density`)))+
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue") +
+  labs(title = "Are pre-school even distributed in Singapore?",
+       subtitle= "There are many planning subzones with a single pre-school, on the other hand, \nthere are seven planning subzones with at least 30 or more pre-schools",
+      x = "Pre-school density (per km sq)",
+      y = "Frequency")
+```
+
+```{r}
+ggplot(data=mpsz, 
+       aes(y = `PreSch Count`, 
+           x= as.numeric(`PreSch Density`)))+
+  geom_point(color="black", 
+             fill="light blue") +
+  xlim(0, 40) +
+  ylim(0, 40) +
+  labs(title = "",
+      x = "Pre-school density (per km sq)",
+      y = "Pre-school count")
+```
