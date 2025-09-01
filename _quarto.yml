@@ -10,11 +10,12 @@ website:
         text: Home
       - href: about.qmd
         text: About
-      - menu:
-        - href: Hands-on_Ex/Hands-on_ex01/handson_ex1.qmd
-          text: Hands-on Exercise 1 Part 1
-        - href: Hands-on_Ex/Hands-on_ex01/handson_ex1_2.qmd
-          text: Hands-on Exercise 1 Part 2
+      - text: Hands-on Exercise
+        menu: 
+          - href: Hands-on_Ex/Hands-on_ex01/handson_ex1.qmd
+            text: Hands-on Exercise 1 Part 1
+          - href: Hands-on_Ex/Hands-on_ex01/handson_ex1_2.qmd
+            text: Hands-on Exercise 1 Part 2
 format:
   html:
     theme:
