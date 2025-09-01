@@ -1,14 +1,12 @@
 ---
-title: "Hands-on Exercise 1"
+title: "Hands-on Exercise 1 - Part 1"
 author: "PHAM Hung Son"
 date: "Aug 23, 2025"
 date-modified: "last-modified"
 format: html
 ---
 
-## Overview
-
-### Part 1: Data Wrangling
+## Part 1: Data Wrangling
 
 ```{r}
 pacman::p_load(sf, tidyverse)

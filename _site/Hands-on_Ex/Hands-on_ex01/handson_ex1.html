@@ -9,7 +9,7 @@
 <meta name="author" content="PHAM Hung Son">
 <meta name="dcterms.date" content="2025-08-23">
 
-<title>Hands-on Exercise 1 – isss626-aug2526</title>
+<title>Hands-on Exercise 1 - Part 1 – isss626-aug2526</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -161,9 +161,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a>
+  <li><a href="#part-1-data-wrangling" id="toc-part-1-data-wrangling" class="nav-link active" data-scroll-target="#part-1-data-wrangling">Part 1: Data Wrangling</a>
   <ul class="collapse">
-  <li><a href="#part-1-data-wrangling" id="toc-part-1-data-wrangling" class="nav-link" data-scroll-target="#part-1-data-wrangling">Part 1: Data Wrangling</a></li>
   <li><a href="#use-case-1-land-acquisition-analysis" id="toc-use-case-1-land-acquisition-analysis" class="nav-link" data-scroll-target="#use-case-1-land-acquisition-analysis"><strong>Use case 1: Land acquisition analysis</strong></a></li>
   <li><a href="#use-case-2-to-determine-the-number-of-pre-schools-by-planning-subzone" id="toc-use-case-2-to-determine-the-number-of-pre-schools-by-planning-subzone" class="nav-link" data-scroll-target="#use-case-2-to-determine-the-number-of-pre-schools-by-planning-subzone"><strong>Use case 2: To determine the number of pre-schools by planning subzone</strong></a></li>
   </ul></li>
@@ -175,7 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Hands-on Exercise 1</h1>
+<h1 class="title">Hands-on Exercise 1 - Part 1</h1>
 </div>
 
 
@@ -210,10 +209,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<section id="part-1-data-wrangling" class="level3">
-<h3 class="anchored" data-anchor-id="part-1-data-wrangling">Part 1: Data Wrangling</h3>
+<section id="part-1-data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-data-wrangling">Part 1: Data Wrangling</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex01/data/geospatial"</span>, </span>
@@ -560,7 +557,6 @@ $ geometry                       &lt;POINT [m]&gt; POINT (41972.5 36390.05), POI
 </div>
 </div>
 </div>
-</section>
 <section id="use-case-1-land-acquisition-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="use-case-1-land-acquisition-analysis"><strong>Use case 1: Land acquisition analysis</strong></h3>
 <div class="cell">
