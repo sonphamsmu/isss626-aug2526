@@ -1,0 +1,561 @@
+---
+title: "Hands-on Exercise 2"
+author: "PHAM Hung Son"
+date: "Sep 03, 2025"
+date-modified: "last-modified"
+format: 
+  html:
+    toc-depth: 4
+    toc-expand: true
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Part 1: First-order Spatial Point Patterns Analysis Methods
+
+## **Importing and Wrangling Data**
+
+```{r}
+pacman::p_load(sf, terra, spatstat, 
+               tmap, rvest, tidyverse)
+```
+
+```{r}
+mpsz_sf <- st_read("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex02/data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>% 
+  st_zm(drop = TRUE, what = "ZM") %>% st_transform(crs = 3414)
+```
+
+```{r}
+extract_kml_field <- function(html_text, field_name) {
+  if (is.na(html_text) || html_text == "") return(NA_character_)
+  
+  page <- read_html(html_text)
+  rows <- page %>% html_elements("tr")
+  
+  value <- rows %>%
+    keep(~ html_text2(html_element(.x, "th")) == field_name) %>%
+    html_element("td") %>%
+    html_text2()
+  
+  if (length(value) == 0) NA_character_ else value
+}
+```
+
+```{r}
+mpsz_sf <- mpsz_sf %>%
+  mutate(
+    REGION_N = map_chr(Description, extract_kml_field, "REGION_N"),
+    PLN_AREA_N = map_chr(Description, extract_kml_field, "PLN_AREA_N"),
+    SUBZONE_N = map_chr(Description, extract_kml_field, "SUBZONE_N"),
+    SUBZONE_C = map_chr(Description, extract_kml_field, "SUBZONE_C")
+  ) %>%
+  select(-Name, -Description) %>%
+  relocate(geometry, .after = last_col())
+```
+
+```{r}
+mpsz_cl <- mpsz_sf %>%
+  filter(SUBZONE_N != "SOUTHERN GROUP",
+         PLN_AREA_N != "WESTERN ISLANDS",
+         PLN_AREA_N != "NORTH-EASTERN ISLANDS")
+```
+
+```{r}
+write_rds(mpsz_cl, 
+          "C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex02/data/mpsz_cl.rds")
+```
+
+```{r}
+childcare_sf <- st_read("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex02/data/ChildCareServices.kml") %>% 
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+tm_shape(mpsz_cl) +
+  tm_polygons() +
+  tm_shape(childcare_sf) +
+  tm_dots()
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare_sf)+
+  tm_dots()
+```
+
+```{r}
+tmap_mode('plot')
+```
+
+```{r}
+childcare_ppp <- as.ppp(childcare_sf)
+```
+
+```{r}
+summary(childcare_ppp)
+```
+
+```{r}
+sg_owin <- as.owin(mpsz_cl)
+```
+
+```{r}
+class(sg_owin)
+```
+
+```{r}
+plot(sg_owin)
+```
+
+```{r}
+childcareSG_ppp = childcare_ppp[sg_owin]
+childcareSG_ppp
+```
+
+## **Clark-Evan Test for Nearest Neighbour Analysis**
+
+The test hypotheses are:
+
+Ho = The distribution of childcare services are randomly distributed.
+
+H1= The distribution of childcare services are not randomly distributed.
+
+The 95% confident interval will be used.
+
+#### Without CSR method:
+
+```{r}
+clarkevans.test(childcareSG_ppp,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"))
+```
+
+**Result**: Since **R = 0.53532 \< 1** and **p-value \< 2.2e-16** (significant), we reject the null hypothesis.
+
+**Conclusion**: The childcare centers are **not randomly distributed** but show **statistically significant clustering**.
+
+#### With CSR method:
+
+```{r}
+clarkevans.test(childcareSG_ppp,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                method="MonteCarlo",
+                nsim=99)
+```
+
+**Result**: R \< 1 and **p = 0.01** (significant at the 5% level.)
+
+**Conclusion**: Again **Reject H₀**. The distribution of childcare centers is **statistically significantly clustered, not random**.
+
+**Business Communication**
+
+Above analysis shows that childcare centers in Singapore are not randomly scattered across the city. Instead, they are statistically clustered, with some areas having a high density of centers while other neighborhoods have few or none.
+
+This points to potential gaps in childcare accessibility that may require policy interventions or incentives to encourage new facilities in underserved regions.
+
+For private operators, the clustering suggests high competition in certain areas but also highlights opportunities in neighborhoods where childcare services are lacking.
+
+## **Kernel Density Estimation Method**
+
+```{r}
+kde_SG_diggle <- density(
+  childcareSG_ppp,
+  sigma=bw.diggle,
+  edge=TRUE,
+  kernel="gaussian") 
+```
+
+```{r}
+plot(kde_SG_diggle)
+```
+
+```{r}
+summary(kde_SG_diggle)
+```
+
+```{r}
+bw <- bw.diggle(childcareSG_ppp)
+bw
+```
+
+```{r}
+childcareSG_ppp_km <- rescale.ppp(
+  childcareSG_ppp, 1000, "km")
+```
+
+```{r}
+kde_childcareSG_km <- density(childcareSG_ppp_km,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                              kernel="gaussian")
+```
+
+```{r}
+plot(kde_childcareSG_km)
+```
+
+```{r}
+bw.CvL(childcareSG_ppp_km)
+bw.scott(childcareSG_ppp_km)
+bw.ppl(childcareSG_ppp_km)
+bw.diggle(childcareSG_ppp_km)
+```
+
+```{r}
+kde_childcareSG.ppl <- density(childcareSG_ppp_km, 
+                               sigma=bw.ppl, 
+                               edge=TRUE,
+                               kernel="gaussian")
+plot(kde_childcareSG_km, main = "bw.diggle")
+plot(kde_childcareSG.ppl, main = "bw.ppl")
+```
+
+Different kernel methods:
+
+```{r}
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="gaussian"), 
+     main="Gaussian")
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="epanechnikov"), 
+     main="Epanechnikov")
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="quartic"), 
+     main="Quartic")
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="disc"), 
+     main="Disc")
+```
+
+## **Fixed and Adaptive KDE**
+
+```{r}
+kde_childcareSG_fb <- density(childcareSG_ppp_km,
+                              sigma=0.6, 
+                              edge=TRUE,
+                              kernel="gaussian")
+plot(kde_childcareSG_fb)
+```
+
+```{r}
+kde_childcareSG_ab <- adaptive.density(
+  childcareSG_ppp_km, 
+  method="kernel")
+plot(kde_childcareSG_ab)
+```
+
+```{r}
+plot(kde_childcareSG_fb, main = "Fixed bandwidth")
+plot(kde_childcareSG_ab, main = "Adaptive bandwidth")
+```
+
+## **Plotting cartographic quality KDE map**
+
+```{r}
+kde_childcareSG_bw_terra <- rast(kde_childcareSG_km)
+```
+
+```{r}
+class(kde_childcareSG_bw_terra)
+cat("\n")
+kde_childcareSG_bw_terra
+```
+
+```{r}
+crs(kde_childcareSG_bw_terra) <- "EPSG:3414"
+kde_childcareSG_bw_terra
+```
+
+```{r}
+tm_shape(kde_childcareSG_bw_terra) + 
+  tm_raster(col.scale = 
+              tm_scale_continuous(
+                values = "viridis"),
+            col.legend = tm_legend(
+            title = "Density values",
+            title.size = 0.7,
+            text.size = 0.7,
+            bg.color = "white",
+            bg.alpha = 0.7,
+            position = tm_pos_in(
+              "right", "bottom"),
+            frame = TRUE)) +
+  tm_graticules(labels.size = 0.7) +
+  tm_compass() +
+  tm_layout(scale = 1.0)
+```
+
+## **First Order SPPA at the Planning Subzone Level**
+
+```{r}
+pg <- mpsz_cl %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+tm <- mpsz_cl %>%
+  filter(PLN_AREA_N == "TAMPINES")
+ck <- mpsz_cl %>%
+  filter(PLN_AREA_N == "CHOA CHU KANG")
+jw <- mpsz_cl %>%
+  filter(PLN_AREA_N == "JURONG WEST")
+```
+
+```{r}
+plot(st_geometry(pg), main = "Punggol")
+plot(st_geometry(tm), main = "Tampines")
+plot(st_geometry(ck), main = "Choa Chu Kang")
+plot(st_geometry(jw), main = "Jurong West")
+```
+
+```{r}
+pg_owin = as.owin(pg)
+tm_owin = as.owin(tm)
+ck_owin = as.owin(ck)
+jw_owin = as.owin(jw)
+```
+
+```{r}
+childcare_pg_ppp = childcare_ppp[pg_owin]
+childcare_tm_ppp = childcare_ppp[tm_owin]
+childcare_ck_ppp = childcare_ppp[ck_owin]
+childcare_jw_ppp = childcare_ppp[jw_owin]
+```
+
+```{r}
+childcare_pg_ppp.km = rescale.ppp(childcare_pg_ppp, 1000, "km")
+childcare_tm_ppp.km = rescale.ppp(childcare_tm_ppp, 1000, "km")
+childcare_ck_ppp.km = rescale.ppp(childcare_ck_ppp, 1000, "km")
+childcare_jw_ppp.km = rescale.ppp(childcare_jw_ppp, 1000, "km")
+```
+
+```{r}
+plot(unmark(childcare_pg_ppp.km), 
+  main="Punggol")
+plot(unmark(childcare_tm_ppp.km), 
+  main="Tampines")
+plot(unmark(childcare_ck_ppp.km), 
+  main="Choa Chu Kang")
+plot(unmark(childcare_jw_ppp.km), 
+  main="Jurong West")
+```
+
+Clark and Evans Test on Choa Chu Kang area:
+
+```{r}
+clarkevans.test(childcare_ck_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+
+Tampines area:
+
+```{r}
+clarkevans.test(childcare_tm_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+
+```{r}
+plot(density(childcare_pg_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Punggol")
+plot(density(childcare_tm_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Tempines")
+plot(density(childcare_ck_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Choa Chu Kang")
+plot(density(childcare_jw_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Jurong West")
+```
+
+# **Part 2: 2nd Order Spatial Point Patterns Analysis Methods**
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+G_CK = Gest(childcare_ck_ppp, correction = "border") 
+plot(G_CK, xlim=c(0,500))
+```
+
+#### Performing Complete Spatial Randomness Test
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+
+H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+Monte Carlo test with G-fucntion
+
+```{r}
+G_CK.csr <- envelope(childcare_ck_ppp, Gest, nsim = 999)
+```
+
+```{r}
+plot(G_CK.csr)
+```
+
+**Tampines area:**
+
+```{r}
+G_tm = Gest(childcare_tm_ppp, correction = "best") 
+plot(G_tm)
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+Ho = The distribution of childcare services at Tampines are randomly distributed.
+
+H1= The distribution of childcare services at Tampines are not randomly distributed.
+
+The null hypothesis will be rejected is p-value is smaller than alpha value of 0.001.
+
+```{r}
+G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(G_tm.csr)
+```
+
+## **Analysing Spatial Point Process Using F-Function**
+
+**CCK area:**
+
+```{r}
+F_CK = Fest(childcare_ck_ppp) 
+plot(F_CK)
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+
+H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+Monte Carlo test with F-fucntion
+
+```{r}
+F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
+```
+
+```{r}
+plot(F_CK.csr)
+```
+
+**Tampines area:**
+
+```{r}
+F_tm = Fest(childcare_tm_ppp, correction = "best") 
+plot(F_tm)
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+Ho = The distribution of childcare services at Tampines are randomly distributed.
+
+H1= The distribution of childcare services at Tampines are not randomly distributed.
+
+The null hypothesis will be rejected is p-value is smaller than alpha value of 0.001.
+
+The code chunk below is used to perform the hypothesis testing.
+
+```{r}
+F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(F_tm.csr)
+```
+
+## **Analysing Spatial Point Process Using K-Function**
+
+**CCK area:**
+
+```{r}
+K_ck = Kest(childcare_ck_ppp, correction = "Ripley") 
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+Ho = The distribution of childcare services at Choa Chu Kang are randomly distributed.
+
+H1= The distribution of childcare services at Choa Chu Kang are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+The code chunk below is used to perform the hypothesis testing.
+
+```{r}
+K_ck.csr <- envelope(childcare_ck_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(K_ck.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+```
+
+**Tampines area:**
+
+```{r}
+K_tm = Kest(childcare_tm_ppp, correction = "Ripley") 
+plot(K_tm, . -r ~ r,       ylab= "K(d)-r", xlab = "d(m)",       xlim=c(0,1000))
+```
+
+```{r}
+K_tm.csr <- envelope(childcare_tm_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(K_tm.csr, . - r ~ r,       xlab="d", ylab="K(d)-r", xlim=c(0,500))
+```
+
+## **Analysing Spatial Point Process Using L-Function**
+
+**CCK area:**
+
+```{r}
+L_ck = Lest(childcare_ck_ppp, correction = "Ripley") 
+plot(L_ck, . -r ~ r,       ylab= "L(d)-r", xlab = "d(m)")
+```
+
+```{r}
+L_ck.csr <- envelope(childcare_ck_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(L_ck.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+```

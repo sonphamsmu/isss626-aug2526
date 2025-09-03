@@ -1,1 +1,12 @@
 /* css styles */
+.navbar {
+  background-color: #50a803 !important; /* neon green */
+}
+
+.navbar a, .navbar-brand, .navbar-nav .nav-link {
+  color: black !important; /* readable text */
+}
+
+.navbar a:hover, .navbar-nav .nav-link:hover {
+  color: white !important; /* hover effect */
+}

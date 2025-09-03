@@ -4,18 +4,20 @@ project:
 website:
   title: "isss626-aug2526"
   navbar:
-      
-    left: 
+    right: 
       - href: index.qmd
         text: Home
       - href: about.qmd
         text: About
+    left:
       - text: Hands-on Exercise
         menu: 
           - href: Hands-on_Ex/Hands-on_ex01/handson_ex1.html
             text: Hands-on Exercise 1 Part 1
           - href: Hands-on_Ex/Hands-on_ex01/handson_ex1_2.html
             text: Hands-on Exercise 1 Part 2
+          - href: Hands-on_Ex/Hands-on_ex02/handson_ex2_1.html
+            text: Hands-on Exercise 2
 format:
   html:
     theme:
