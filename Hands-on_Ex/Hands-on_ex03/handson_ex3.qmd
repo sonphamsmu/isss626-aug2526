@@ -1,0 +1,201 @@
+---
+title: "Hands-on Exercise 3"
+author: "PHAM Hung Son"
+date: "Sep 09, 2025"
+date-modified: "last-modified"
+format: 
+  html:
+    toc-depth: 4
+    toc-expand: true
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# **Spatio-Temporal Point Patterns Analysis**
+
+## **1. Learning Outcome**
+
+The specific questions we would like to answer are:
+
+-   are the locations of forest fire in Kepulauan Bangka Belitung spatial and spatio-temporally independent?
+
+-   if the answer is NO, where and when the observed forest fire locations tend to cluster?
+
+## **2. The data**
+
+-   *forestfires*, a csv file provides locations of forest fire detected from the Moderate Resolution Imaging Spectroradiometer (MODIS) sensor data. The data are downloaded from [Fire Information for Resource Management System](https://firms.modaps.eosdis.nasa.gov/download/). For the purpose of this exercise, only forest fires within Kepulauan Bangka Belitung will be used.
+
+-   *Kepulauan_Bangka_Belitung*, an ESRI shapefile showing the sub-district (i.e. [kelurahan](https://en.wikipedia.org/wiki/Villages_of_Indonesia)) boundary of Kepulauan Bangka Belitung. The data set was downloaded from [Indonesia Geospatial](https://www.indonesia-geospasial.com/2023/05/download-shapefile-batas-administrasi.html) portal. The original data covers the whole Indonesia. For the purpose of this exercise, only sub-districts within Kepulauan Bangka Belitung are extracted.
+
+## **3. Importing and Preparing Study Area & Forest Fire data**
+
+```{r}
+pacman::p_load(sf, terra, spatstat, sparr, tmap, tidyverse)
+```
+
+```{r}
+kbb <- st_read(dsn="C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex03/data/rawdata",
+               layer = "Kepulauan_Bangka_Belitung") 
+```
+
+```{r}
+kbb_sf <- st_read(dsn="C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex03/data/rawdata",
+               layer = "Kepulauan_Bangka_Belitung") %>%
+  st_union() %>%
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 32748)
+```
+
+```{r}
+kbb_owin <- as.owin(kbb_sf)
+kbb_owin
+```
+
+```{r}
+class(kbb_owin)
+```
+
+```{r}
+fire_sf <- read_csv("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex03/data/rawdata/forestfires.csv") %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+                       crs = 4326) %>%
+  st_transform(crs = 32748)
+```
+
+```{r}
+fire_sf <- fire_sf %>% 
+  mutate(DayofYear = yday(acq_date)) %>%
+  mutate(Month_num = month(acq_date)) %>%
+  mutate(Month_fac = month(acq_date, 
+                           label = TRUE, 
+                           abbr = FALSE))
+```
+
+## **4. Visualising the Fire Points**
+
+```{r}
+tm_shape(kbb_sf)+
+  tm_polygons() +
+tm_shape(fire_sf) +
+  tm_dots()
+```
+
+```{r}
+tm_shape(kbb_sf) +
+  tm_polygons() +
+tm_shape(fire_sf) +
+  tm_dots(size = 0.1) +
+tm_facets(by = "Month_fac",
+          ncol = 4,       # 4 columns
+          nrow = 3,       # 3 rows
+          free.coords = FALSE,
+          drop.units = TRUE)
+
+```
+
+## **5. Computing STKDE by Month**
+
+### **Extracting forest fires by month**
+
+```{r}
+fire_month <- fire_sf %>% 
+  select(Month_num)
+```
+
+### **Creating ppp**
+
+```{r}
+fire_month_ppp <- as.ppp(fire_month)
+fire_month_ppp
+```
+
+```{r}
+summary(fire_month_ppp)
+```
+
+```{r}
+any(duplicated(fire_month_ppp))
+```
+
+### **Including Owin object**
+
+```{r}
+fire_month_owin <- fire_month_ppp[kbb_owin]
+summary(fire_month_owin)
+```
+
+```{r}
+plot(fire_month_owin)
+```
+
+### **Computing Spatio-temporal KDE**
+
+```{r}
+st_kde <- spattemp.density(fire_month_owin)
+summary(st_kde)
+```
+
+### **Plotting the spatio-temporal KDE object**
+
+```{r}
+tims <- c(7,8,9,10,11,12)
+par(mfcol=c(2,3))
+for(i in tims){ 
+  plot(st_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at month",i))
+}
+```
+
+## **6. Computing STKDE by Day of Year**
+
+### **Creating ppp object**
+
+```{r}
+fire_yday_ppp <- fire_sf %>% 
+  select(DayofYear) %>%
+  as.ppp()
+```
+
+### **Including Owin object**
+
+```{r}
+fire_yday_owin <- fire_yday_ppp[kbb_owin]
+summary(fire_yday_owin)
+```
+
+### **Computing Spatio-temporal KDE**
+
+```{r}
+kde_yday <- spattemp.density(
+  fire_yday_owin)
+summary(kde_yday)
+```
+
+```{r}
+plot(kde_yday)
+```
+
+## **7. Computing STKDE by Day of Year: Improved method**
+
+```{r}
+set.seed(1234)
+BOOT.spattemp(fire_yday_owin) 
+```
+
+### **Computing spatio-temporal KDE**
+
+```{r}
+kde_yday <- spattemp.density(fire_yday_owin,
+                             h = 9000,
+                             lambda = 19)
+summary(kde_yday)
+```
+
+```{r}
+plot(kde_yday)
+```
