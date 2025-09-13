@@ -24,6 +24,8 @@ website:
         menu: 
           - href: In-class_Ex/In-class_Ex03/In-class_Ex03a.html
             text: In-class Exercise 3a
+          - href: In-class_Ex/In-class_Ex03/In-class_Ex03b.html
+            text: In-class Exercise 3b
 format:
   html:
     theme:
