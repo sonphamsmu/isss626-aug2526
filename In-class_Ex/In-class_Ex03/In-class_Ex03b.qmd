@@ -10,9 +10,17 @@ execute:
   freeze: true
 ---
 
+**Loading the R package**
+
 ```{r}
 pacman::p_load(tidyverse, sf, tmap, httr)
 ```
+
+**Importing ACRA data**
+
+-   importing an ACRA data set into RStudio as tibble data frame, and
+
+-   drop the unnecessary fields such as fields with excessive missing values or fields with only single values.
 
 ```{r}
 folder_path <- "data/aspatial/ACRA"
@@ -24,10 +32,24 @@ acra_data <- file_list %>%
   map_dfr(read_csv)
 ```
 
+**Saving ACRA data**
+
+code chunk to save the consolidated ACRA data.
+
 ```{r}
 write_rds(acra_data,
           "data/rds/acra_data.rds")
 ```
+
+**Tidying ACRA data**
+
+-   select the target businesses by using SSIC code,
+
+-   derive the year and month fields from *registration_incorporation_date* field,
+
+-   tidy postal code values to ensure avoid 5-digit postal codes by mistake, and
+
+-   select businesses registered in 2025. (first 6 months)
 
 ```{r}
 biz_56111 <- acra_data %>%
@@ -75,6 +97,11 @@ for (pc in postcodes) {
 }
 ```
 
+```{r}
+found <- found %>%
+  select(1:10)
+```
+
 Appending the location info
 
 ```{r}
@@ -83,10 +110,34 @@ biz_56111 = biz_56111 %>%
             by = c('postal_code'= 'POSTAL'))
 ```
 
-Converting in to SF dataframe
+save the tidied data into rds format for future use.
 
 ```{r}
-biz_56111_sf <- st_as_sf(biz_56111,
-                         coords = c("X", "Y"),
-                         crs=3414)
+write_rds(biz_56111, "data/rds/biz_56111.rds")
+```
+
+convert biz_56111 tibble data frame into sf data frame
+
+```{r}
+biz_56111_sf <- st_as_sf(biz_56111, 
+                         coords = c("X","Y"),
+                         crs=3414) 
+```
+
+**Visualising the distribution**
+
+code chunk to reveal the distribution of newly registered businesses by month.
+
+```{r}
+ggplot(data = biz_56111,
+       aes(x = MONTH_ABBR)) +
+  geom_bar()
+```
+
+**Visualising the business**
+
+```{r}
+tmap_mode('view')
+tm_shape(biz_56111_sf)+
+  tm_dots()
 ```
