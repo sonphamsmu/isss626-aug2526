@@ -24,7 +24,7 @@ pacman::p_load(sf, terra, spatstat,
 ```
 
 ```{r}
-mpsz_sf <- st_read("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex02/data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>% 
+mpsz_sf <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>% 
   st_zm(drop = TRUE, what = "ZM") %>% st_transform(crs = 3414)
 ```
 
@@ -65,11 +65,11 @@ mpsz_cl <- mpsz_sf %>%
 
 ```{r}
 write_rds(mpsz_cl, 
-          "C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex02/data/mpsz_cl.rds")
+          "data/mpsz_cl.rds")
 ```
 
 ```{r}
-childcare_sf <- st_read("C:/sonphamsmu/isss626-aug2526/Hands-on_Ex/Hands-on_ex02/data/ChildCareServices.kml") %>% 
+childcare_sf <- st_read("data/ChildCareServices.kml") %>% 
   st_zm(drop = TRUE, what = "ZM") %>%
   st_transform(crs = 3414)
 ```
