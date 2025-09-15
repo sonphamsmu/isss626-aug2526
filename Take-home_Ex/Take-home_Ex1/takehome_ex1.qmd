@@ -1,0 +1,239 @@
+---
+title: "Take-home Exercise 1: Geospatial Analytics for Public Good"
+author: "Pham Hung Son"
+date: "September 14, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# **1 Overview**
+
+![](images/clipboard-2863953254.png)
+
+~[*Inside a Hawker Center (via TripAdvisor)*]{.smallcaps}~
+
+The Food & Beverage (F&B) and Hospitality sector is a vital pillar of Singapore’s economy, contributing significantly to both employment and tourism-driven revenue. In 2024, international visitor arrivals reached about **16.5 million**, and tourism receipts rose to **S\$29,781 million** (or \~SGD 29.8 billion), a strong recovery to pre-pandemic levels. Among the components of tourism spend, expenditure on Food & Beverage increased by 6% year-on-year in January - September 2024. The F&B services sector also plays a major role domestically: for example, in July 2025, its sales reached **S\$1.0 billion**, with fast food outlets and food caterers showing notable growth, and approximately a quarter of F&B sales happening online.
+
+Beyond raw numbers, the sector deeply shapes everyday life—socializing, culture, lifestyle—through restaurants, hawker centers, cafés, bars, catering, etc. It’s also a key part of the hospitality value chain: hotels not only provide lodging but often generate substantial revenue from associated F&B (restaurants, banquets). The dynamic interplay between F&B manufacturers, drink producers, and service-based outlets influences urban planning (where clusters of eating and dining pop up), business location decisions, land-use, and labour markets.
+
+# **2 Getting Started**
+
+## **2.1 The Packages**
+
+In this exercise, we will use following packages:
+
+| Package | Description |
+|----|----|
+| [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
+| [**spatstat**](https://spatstat.org/) | Provides functions for spatial statistics with a strong focus on analysing spatial point patterns. |
+| [**raster**](https://cran.r-project.org/web/packages/raster/) | Provides functions which reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format. |
+| [**tidyverse**](https://www.tidyverse.org/) | Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data. |
+| [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API |
+| [**httr**](https://httr.r-lib.org/) | Provide a wrapper for the [**curl**](https://cran.r-project.org/web/packages/curl/vignettes/intro.html) package, customised to the demands of modern web APIs. Key features: Functions for the most important http verbs: `GET()`, `HEAD()`, `PATCH()`, `PUT()`, `DELETE()` and `POST()`. |
+| [**dplyr**](https://dplyr.tidyverse.org/) | Provides a set of verbs that help solving the most common data manipulation challenges. |
+| [**lubridate**](https://lubridate.tidyverse.org/) | Handle date and date-time data type. |
+
+```{r}
+pacman::p_load(tidyverse, sf, tmap, httr)
+```
+
+## **2.2 The Data**
+
+### 2.2.1 Business Categories Overview
+
+Using the **Singapore Standard Industrial Classification (SSIC) 2020**, three business categories were selected for analysis: **Food and Beverage Service Activities (Division 56), Manufacture of Other Food Products (Group 107), and Manufacture of Beverages (Group 110)**. Together, they span the spectrum from **food production and processing** to **retail consumption**, providing a comprehensive view of how food-related businesses emerge and evolve across the city. Examining their spatial and temporal patterns allows us to understand not only where F&B establishments are located, but also how they interact with upstream manufacturers and beverage producers. This holistic perspective offers valuable insights into the clustering of economic activities, the shaping of commercial districts, and the role of the F&B ecosystem in supporting urban development and community life.
+
+Below is the details of the business type selected:
+
+**56 – Food and Beverage Service Activities**
+
+-   **Division 56**: Food and beverage service activities
+    -   Includes: Restaurants, cafés, fast food outlets, food courts, coffee shops, hawker centers, caterers, pubs, bars, nightclubs, and other drinking places.
+
+    -   Covers businesses primarily engaged in **preparing meals, snacks, and drinks for immediate consumption**.
+
+**107 – Manufacture of Other Food Products**
+
+-   **Division 10**: Manufacture of food products
+
+-   **Group 107**: Manufacture of other food products
+
+    -   Includes:
+
+        -   **1071** – Manufacture of bakery products (bread, biscuits, cakes, confectionery)
+
+        -   **1074** – Manufacture of macaroni, noodles, vermicelli and related products
+
+        -   **1075** – Manufacture of prepared meals and dishes (e.g., frozen dinners)
+
+        -   **1076** – Manufacture of coffee, tea and related products
+
+        -   **1079** – Manufacture of other food products n.e.c. (sauces, soya products, spices, chips, crackers, titbits)
+
+**110 – Manufacture of Beverages**
+
+-   **Division 11**: Manufacture of beverages
+
+-   **Group 110**: Manufacture of beverages
+
+    -   Includes:
+
+        -   **1101** – Distilling, rectifying and blending of spirits
+
+        -   **1102** – Manufacture of wines
+
+        -   **1103** – Manufacture of malt liquors and malt (beer, stout)
+
+        -   **1104** – Manufacture of soft drinks, bottled/mineral waters, cordials, syrups, composite concentrates, and ice.
+
+### 2.2.2 Datasets
+
+| **Dataset Name** | **Description** | **Format** | **Source** |
+|----|----|----|----|
+| ACRA (Accounting and Corporate Regulatory Authority) Information on Corporate Entities | Datasets of registered entities in Singapore. (We will select business entities registered between 1st January 2024 to 30th June 2025.) | CSV | [data.gov.sg](https://data.gov.sg/collections/2/view) |
+| SSIC: Singapore Standard Industrial Classification (SSIC) | Official system for classifying economic activity of business establishments in Singapore. | XLSX | [SSIC](https://classification.codes/classifications/industry/ssic-singapore) |
+| Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
+| LTA MRT Station Exit | Geospatial data for Singapore’s MRT/LRT stations exit. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_b39d3a0871985372d7e1637193335da5/view) |
+
+## **2.3 Data Importing & Wrangling**
+
+```{r}
+mpsz19 = st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaGEOJSON.geojson") %>% 
+  st_transform(crs = 3414)
+```
+
+**Importing ACRA data**
+
+-   importing an ACRA data set into RStudio as tibble data frame, and
+
+-   drop the unnecessary fields such as fields with excessive missing values or fields with only single values.
+
+```{r}
+folder_path <- "data/aspatial/ACRA"
+file_list <- list.files(path = folder_path,
+                        pattern = "^ACRA*.*\\.csv$",
+                        full.names = TRUE)
+
+acra_data <- file_list %>%
+  map_dfr(read_csv)
+```
+
+**Saving ACRA data**
+
+code chunk to save the consolidated ACRA data.
+
+```{r}
+write_rds(acra_data,
+          "data/rds/acra_data.rds")
+```
+
+**Tidying ACRA data**
+
+-   select the target businesses by using SSIC code,
+
+-   derive the year and month fields from *registration_incorporation_date* field,
+
+-   tidy postal code values to ensure avoid 5-digit postal codes by mistake, and
+
+-   select businesses registered in 2025. (first 6 months)
+
+```{r}
+biz_56111 <- acra_data %>%
+  select(1:24) %>%
+  filter(primary_ssic_code == 56111) %>%
+  rename(date = registration_incorporation_date) %>%
+  mutate(date = as.Date(date),
+         YEAR = year(date),
+         MONTH_NUM = month(date),
+         MONTH_ABBR = month(date,
+                            label = TRUE,
+                            abbr = TRUE)) %>%
+  mutate(postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0")) %>%
+  filter(YEAR == 2025, MONTH_NUM <= 6)
+```
+
+Geocoding
+
+```{r}
+postcodes <- unique(biz_56111$postal_code)
+
+url <- "https://onemap.gov.sg/api/common/elastic/search"
+
+found <- data.frame()
+not_found <- data.frame(postcode = character())
+
+for (pc in postcodes) {
+  query <- list(
+    searchVal = pc,
+    returnGeom = "Y",
+    getAddrDetails = "Y",
+    pageNum = "1"
+  )
+  
+  res <- GET(url, query = query)
+  json <- content(res)
+  
+  if(json$found != 0) {
+    df <- as.data.frame(json$results, stringsAsFactors = FALSE)
+    df$input_postcode <- pc
+    found <- bind_rows(found, df)
+  } else {
+    not_found <- bind_rows(not_found, data.frame(postcode = pc))
+  }
+}
+```
+
+```{r}
+found <- found %>%
+  select(1:10)
+```
+
+Appending the location info
+
+```{r}
+biz_56111 = biz_56111 %>%
+  left_join(found,
+            by = c('postal_code'= 'POSTAL'))
+```
+
+save the tidied data into rds format for future use.
+
+```{r}
+write_rds(biz_56111, "data/rds/biz_56111.rds")
+```
+
+convert biz_56111 tibble data frame into sf data frame
+
+```{r}
+biz_56111_sf <- st_as_sf(biz_56111, 
+                         coords = c("X","Y"),
+                         crs=3414) 
+```
+
+**Visualising the distribution**
+
+code chunk to reveal the distribution of newly registered businesses by month.
+
+```{r}
+ggplot(data = biz_56111,
+       aes(x = MONTH_ABBR)) +
+  geom_bar()
+```
+
+**Visualising the business**
+
+```{r}
+tmap_mode('view')
+tm_shape(biz_56111_sf)+
+  tm_dots()
+```
+
+# **References**
+
+-   **Singapore Department of Statistics (SingStat).** *Monthly Retail Sales and Food & Beverage Services Statistics, July 2025.* [https://www.singstat.gov.sg/mrs](https://www.singstat.gov.sg/mrs?utm_source=chatgpt.com)
+-   **Singapore Department of Statistics (SingStat).** *Tourism Statistics – Industry & Services.* [https://www.singstat.gov.sg/find-data/search-by-theme/industry/tourism](https://www.singstat.gov.sg/find-data/search-by-theme/industry/tourism?utm_source=chatgpt.com)
+-   **Singapore Tourism Board (STB).** *Singapore achieves historical high in tourism receipts in 2024.* (Press Release, 29 January 2025). [https://www.stb.gov.sg/about-stb/media-publications/media-centre/singapore-achieves-historical-high-in-tourism-receipts-in-2024/](https://www.stb.gov.sg/about-stb/media-publications/media-centre/singapore-achieves-historical-high-in-tourism-receipts-in-2024/?utm_source=chatgpt.com)
