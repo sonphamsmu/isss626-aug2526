@@ -27,7 +27,7 @@ Beyond raw numbers, the sector deeply shapes everyday life—socializing, cultur
 In this exercise, we will use following packages:
 
 | Package | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
 | [**spatstat**](https://spatstat.org/) | Provides functions for spatial statistics with a strong focus on analysing spatial point patterns. |
 | [**raster**](https://cran.r-project.org/web/packages/raster/) | Provides functions which reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format. |
@@ -93,7 +93,7 @@ Below is the details of the business type selected:
 ### 2.2.2 Datasets
 
 | **Dataset Name** | **Description** | **Format** | **Source** |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | ACRA (Accounting and Corporate Regulatory Authority) Information on Corporate Entities | Datasets of registered entities in Singapore. (We will select business entities registered between 1st January 2024 to 30th June 2025.) | CSV | [data.gov.sg](https://data.gov.sg/collections/2/view) |
 | SSIC: Singapore Standard Industrial Classification (SSIC) | Official system for classifying economic activity of business establishments in Singapore. | XLSX | [SSIC](https://classification.codes/classifications/industry/ssic-singapore) |
 | Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
@@ -101,16 +101,9 @@ Below is the details of the business type selected:
 
 ## **2.3 Data Importing & Wrangling**
 
-```{r}
-mpsz19 = st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaGEOJSON.geojson") %>% 
-  st_transform(crs = 3414)
-```
+### **2.3.1 Importing ACRA data**
 
-**Importing ACRA data**
-
--   importing an ACRA data set into RStudio as tibble data frame, and
-
--   drop the unnecessary fields such as fields with excessive missing values or fields with only single values.
+The ACRA Corporate Entities CSV files were imported into R using [**tidyverse**](https://www.tidyverse.org/). The first 24 columns were retained, covering entity identifiers, names, incorporation dates, SSIC codes, and addresses. This ensured consistency across all files as we are dropping the unnecessary fields such as fields with excessive missing values or fields with only single values.
 
 ```{r}
 folder_path <- "data/aspatial/ACRA"
@@ -122,44 +115,116 @@ acra_data <- file_list %>%
   map_dfr(read_csv)
 ```
 
-**Saving ACRA data**
+```{r}
+glimpse(acra_data)
+```
 
-code chunk to save the consolidated ACRA data.
+The dataset consists of 2,026,935 rows and 53 columns.
 
 ```{r}
 write_rds(acra_data,
           "data/rds/acra_data.rds")
 ```
 
-**Tidying ACRA data**
+### **2.3.2 Tidying ACRA data**
 
--   select the target businesses by using SSIC code,
+**Standardisation of Key Fields**\
+Column names were renamed to a common schema (`date`, `ssic_raw`, `postal_code`). Dates were converted into proper R `Date` objects. SSIC codes were cleaned to numeric strings, and **2-digit** (`ssic_2d`) and **3-digit** (`ssic_3d`) prefixes were extracted. Postal codes were also padded to six digits for consistency.
 
--   derive the year and month fields from *registration_incorporation_date* field,
+**Temporal Filtering**\
+Only businesses registered between **01-Jan-2024 and 30-Jun-2025** were retained, aligning with the study’s spatio-temporal scope. Records with missing or invalid dates were excluded.
 
--   tidy postal code values to ensure avoid 5-digit postal codes by mistake, and
-
--   select businesses registered in 2025. (first 6 months)
+**Business Type Selection**\
+The dataset was filtered to include only the **Food and Beverage / Hospitality categories**: **Division 56** – Food & Beverage Service Activities, **Group 107** – Manufacture of Other Food Products, **Group 110** – Manufacture of Beverages
 
 ```{r}
-biz_56111 <- acra_data %>%
-  select(1:24) %>%
-  filter(primary_ssic_code == 56111) %>%
-  rename(date = registration_incorporation_date) %>%
-  mutate(date = as.Date(date),
-         YEAR = year(date),
-         MONTH_NUM = month(date),
-         MONTH_ABBR = month(date,
-                            label = TRUE,
-                            abbr = TRUE)) %>%
-  mutate(postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0")) %>%
-  filter(YEAR == 2025, MONTH_NUM <= 6)
+date_min <- as_date("2024-01-01")
+date_max <- as_date("2025-06-30")
 ```
 
-Geocoding
+```{r}
+acra_all_fnb <- acra_data %>%
+  # keep the first 24 cols 
+  select(1:24) %>%
+  # commonize column names 
+  rename(
+    date        = registration_incorporation_date,
+    ssic_raw    = primary_ssic_code,
+    postal_code = postal_code
+  ) %>%
+  mutate(
+    # dates
+    date = as_date(date),
+    # SSIC as character 
+    ssic_raw = as.character(ssic_raw),
+    ssic_raw = str_replace_all(ssic_raw, "[^0-9]", ""),   
+    ssic_2d  = str_sub(ssic_raw, 1, 2),
+    ssic_3d  = str_sub(ssic_raw, 1, 3),
+    # clean postal code to 6-digit with zeros
+    postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0")
+  ) %>%
+  
+  filter(!is.na(date), date >= date_min, date <= date_max) %>%
+  # target Division 56 OR Group 107 OR Group 110
+  filter(ssic_2d == "56" | ssic_3d %in% c("107", "110")) %>%
+  # time fields
+  mutate(
+    YEAR       = year(date),
+    MONTH_NUM  = month(date),
+    MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),
+    fnb_bucket = case_when(
+      ssic_2d == "56"          ~ "F&B Services (Div 56)",
+      ssic_3d == "107"         ~ "Food Manufacturing (Grp 107)",
+      ssic_3d == "110"         ~ "Beverage Manufacturing (Grp 110)",
+      TRUE                     ~ "Other"
+    )
+  )
+```
+
+**Sanity Checks & Subsets**\
+Basic counts by `fnb_bucket` were generated to confirm category distribution. Monthly registration summaries were produced to validate temporal coverage. Separate data frames (`biz_56`, `biz_107`, `biz_110`) were created for more detailed subgroup analysis.
 
 ```{r}
-postcodes <- unique(biz_56111$postal_code)
+# Counts by bucket
+acra_all_fnb %>% count(fnb_bucket, sort = TRUE)
+
+# Monthly registrations for later plotting
+acra_all_fnb %>%
+  count(YYYYMM = floor_date(date, "month"), fnb_bucket) %>%
+  arrange(YYYYMM, fnb_bucket)
+```
+
+```{r}
+# separate data frames for each bucket
+biz_56  <- acra_all_fnb %>% filter(ssic_2d == "56")
+biz_107 <- acra_all_fnb %>% filter(ssic_3d == "107")
+biz_110 <- acra_all_fnb %>% filter(ssic_3d == "110")
+```
+
+```{r}
+# Date column named `date` and a month column for plotting later:
+acra_all_fnb <- acra_all_fnb %>%
+  mutate(
+    date  = as.Date(date),
+    month = floor_date(date, "month"),
+    postal_code = stringr::str_pad(postal_code, 6, pad = "0")
+  )
+
+biz_56  <- biz_56  %>% mutate(postal_code = stringr::str_pad(postal_code, 6, pad = "0"))
+biz_107 <- biz_107 %>% mutate(postal_code = stringr::str_pad(postal_code, 6, pad = "0"))
+biz_110 <- biz_110 %>% mutate(postal_code = stringr::str_pad(postal_code, 6, pad = "0"))
+```
+
+### 2.3.3 Geocoding
+
+**Extract Unique Postcodes**\
+Unique six-digit postal codes were extracted from the ACRA dataset. To ensure consistency, codes were padded with leading zeros where necessary and invalid entries (missing or non-numeric) were excluded.
+
+**Query the OneMap API**\
+Each postcode was sent to the OneMap Singapore API using the code chunk below. The API returned address details and coordinates (`X`, `Y` in SVY21 projection; `LATITUDE`, `LONGITUDE` in WGS84). Postcodes with no matches were logged separately for later review.
+
+```{r}
+postcodes <- unique(acra_all_fnb$postal_code)
 
 url <- "https://onemap.gov.sg/api/common/elastic/search"
 
@@ -187,49 +252,102 @@ for (pc in postcodes) {
 }
 ```
 
+**Append Geocoding Results**\
+Geocoding was performed by extracting unique six-digit postal codes from the ACRA dataset and submitting them to the OneMap Singapore API. The API returned both address details and geographic coordinates, which were then joined back to the business records. Invalid or missing coordinates were cleaned, and duplicates were removed to ensure data quality. The final datasets were converted into spatial features (`sf` objects) in the SVY21 projection (EPSG:3414), enabling integration with planning boundaries and spatial analysis. To ensure reproducibility and avoid repeated API calls, the geocoded datasets and unresolved cases were saved as `.rds` files.
+
 ```{r}
 found <- found %>%
+  #X/Y from OneMap are SVY21 (EPSG:3414); coerce to numeric
+  mutate(
+    X = suppressWarnings(as.numeric(X)),
+    Y = suppressWarnings(as.numeric(Y))
+  ) %>%
+  # keep the essential columns
   select(1:10)
 ```
 
-Appending the location info
-
 ```{r}
-biz_56111 = biz_56111 %>%
-  left_join(found,
-            by = c('postal_code'= 'POSTAL'))
+acra_all_fnb <- acra_all_fnb %>% left_join(found, by = c("postal_code" = "POSTAL"))
+biz_56       <- biz_56       %>% left_join(found, by = c("postal_code" = "POSTAL"))
+biz_107      <- biz_107      %>% left_join(found, by = c("postal_code" = "POSTAL"))
+biz_110      <- biz_110      %>% left_join(found, by = c("postal_code" = "POSTAL"))
 ```
 
-save the tidied data into rds format for future use.
-
 ```{r}
-write_rds(biz_56111, "data/rds/biz_56111.rds")
+df_to_sf <- function(df, id_col = NULL) {
+  df2 <- df %>%
+    mutate(across(any_of(c("X","Y","LONGITUDE","LATITUDE")),
+                  ~ suppressWarnings(as.numeric(.x))))
+
+  if (all(c("X","Y") %in% names(df2))) {
+    df2 <- df2 %>% filter(!is.na(X), !is.na(Y))
+    if (!is.null(id_col) && id_col %in% names(df2)) {
+      df2 <- df2 %>% group_by(.data[[id_col]]) %>% slice(1) %>% ungroup()
+    }
+    st_as_sf(df2, coords = c("X","Y"), crs = 3414)   # SVY21
+  } else if (all(c("LONGITUDE","LATITUDE") %in% names(df2))) {
+    df2 <- df2 %>% filter(!is.na(LONGITUDE), !is.na(LATITUDE))
+    if (!is.null(id_col) && id_col %in% names(df2)) {
+      df2 <- df2 %>% group_by(.data[[id_col]]) %>% slice(1) %>% ungroup()
+    }
+    st_as_sf(df2, coords = c("LONGITUDE","LATITUDE"), crs = 4326)  
+  } else {
+    stop("No coordinate columns found. Expected X/Y or LONGITUDE/LATITUDE. Present: ",
+         paste(names(df2), collapse = ", "))
+  }
+}
+
+acra_all_fnb_sf <- df_to_sf(acra_all_fnb, id_col = "uen")
+biz_56_sf       <- df_to_sf(biz_56,       id_col = "uen")
+biz_107_sf      <- df_to_sf(biz_107,      id_col = "uen")
+biz_110_sf      <- df_to_sf(biz_110,      id_col = "uen")
 ```
 
-convert biz_56111 tibble data frame into sf data frame
+```{r}
+write_rds(acra_all_fnb, "data/rds/acra_all_fnb.rds")
+write_rds(biz_56,       "data/rds/biz_56.rds")
+write_rds(biz_107,      "data/rds/biz_107.rds")
+write_rds(biz_110,      "data/rds/biz_110.rds")
+write_rds(not_found,    "data/rds/postcodes_not_found.rds") 
+```
 
 ```{r}
-biz_56111_sf <- st_as_sf(biz_56111, 
-                         coords = c("X","Y"),
-                         crs=3414) 
+biz_missing <- acra_all_fnb %>%
+  mutate(X = suppressWarnings(as.numeric(X)), Y = suppressWarnings(as.numeric(Y))) %>%
+  filter(is.na(X) | is.na(Y))
+write_rds(biz_missing, "data/rds/biz_missing_coords.rds")
 ```
 
 **Visualising the distribution**
 
+```{r}
+# Load URA Subzone boundaries
+subzones <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaGEOJSON.geojson") %>%
+  st_transform(crs = 3414)
+
+# Spatial join: assign each business to a subzone
+acra_all_fnb_sf <- st_join(acra_all_fnb_sf, subzones)
+```
+
+```{r}
+tmap_mode("view")  # interactive map
+tm_shape(subzones) + tm_borders() +
+tm_shape(acra_all_fnb_sf) + tm_dots(col = "fnb_bucket", size = 0.05)
+```
+
 code chunk to reveal the distribution of newly registered businesses by month.
 
 ```{r}
-ggplot(data = biz_56111,
-       aes(x = MONTH_ABBR)) +
-  geom_bar()
-```
+monthly_counts <- acra_all_fnb %>%
+  mutate(date = as.Date(date), month = floor_date(date, "month")) %>%
+  count(month)
 
-**Visualising the business**
-
-```{r}
-tmap_mode('view')
-tm_shape(biz_56111_sf)+
-  tm_dots()
+ggplot(monthly_counts, aes(x = month, y = n)) +
+  geom_col(fill = "steelblue") +
+  scale_x_date(date_labels = "%b-%Y", date_breaks = "1 month") +
+  labs(x = "Month of Registration", y = "Number of Businesses",
+       title = "Monthly New F&B/Hospitality Registrations (Jan 2024 – Jun 2025)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 # **References**
