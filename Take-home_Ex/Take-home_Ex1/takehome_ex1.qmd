@@ -335,6 +335,10 @@ tm_shape(subzones) + tm_borders() +
 tm_shape(acra_all_fnb_sf) + tm_dots(col = "fnb_bucket", size = 0.05)
 ```
 
+```{r}
+tmap_mode("plot")
+```
+
 code chunk to reveal the distribution of newly registered businesses by month.
 
 ```{r}
