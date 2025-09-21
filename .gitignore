@@ -1,6 +1,8 @@
 .Rproj.user
+.Rproj.user/
 .Rhistory
 .Rdata
+.RDataTmp*
 .httr-oauth
 .DS_Store
 .quarto
@@ -21,3 +23,4 @@ temp/
 /.quarto/
 
 data/
+.RData
