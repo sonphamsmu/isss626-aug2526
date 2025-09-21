@@ -27,7 +27,7 @@ Beyond raw numbers, the sector deeply shapes everyday life—socializing, cultur
 In this exercise, we will use following packages:
 
 | Package | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
 | [**spatstat**](https://spatstat.org/) | Provides functions for spatial statistics with a strong focus on analysing spatial point patterns. |
 | [**stpp**](https://cran.r-project.org/web/packages/stpp/index.html) | Provides statistical tools for analyzing the global and local second-order properties of spatio-temporal point processes. |
@@ -45,7 +45,7 @@ pacman::p_load(tidyverse, sf, spatstat, stpp, tmap, httr, lubridate, splancs, sf
 
 ## **2.2 The Data**
 
-### 2.2.1 Business Categories Overview
+### **2.2.1 Business Categories Overview**
 
 Using the **Singapore Standard Industrial Classification (SSIC) 2020**, three business categories were selected for analysis: **Food and Beverage Service Activities (Division 56), Manufacture of Other Food Products (Group 107), and Manufacture of Beverages (Group 110)**. Together, they span the spectrum from **food production and processing** to **retail consumption**, providing a comprehensive view of how food-related businesses emerge and evolve across the city. Examining their spatial and temporal patterns allows us to understand not only where F&B establishments are located, but also how they interact with upstream manufacturers and beverage producers. This holistic perspective offers valuable insights into the clustering of economic activities, the shaping of commercial districts, and the role of the F&B ecosystem in supporting urban development and community life.
 
@@ -92,10 +92,10 @@ Below is the details of the business type selected:
 
         -   **1104** – Manufacture of soft drinks, bottled/mineral waters, cordials, syrups, composite concentrates, and ice.
 
-### 2.2.2 Datasets
+### **2.2.2 Datasets**
 
 | **Dataset Name** | **Description** | **Format** | **Source** |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | ACRA (Accounting and Corporate Regulatory Authority) Information on Corporate Entities | Datasets of registered entities in Singapore. (We will select business entities registered between 1st January 2024 to 30th June 2025.) | CSV | [data.gov.sg](https://data.gov.sg/collections/2/view) |
 | SSIC: Singapore Standard Industrial Classification (SSIC) | Official system for classifying economic activity of business establishments in Singapore. | XLSX | [SSIC](https://classification.codes/classifications/industry/ssic-singapore) |
 | Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
@@ -229,7 +229,7 @@ biz_107 <- biz_107 %>% mutate(postal_code = stringr::str_pad(postal_code, 6, pad
 biz_110 <- biz_110 %>% mutate(postal_code = stringr::str_pad(postal_code, 6, pad = "0"))
 ```
 
-### 2.3.3 Geocoding
+### **2.3.3 Geocoding**
 
 **Extract Unique Postcodes**\
 Unique six-digit postal codes were extracted from the ACRA dataset. To ensure consistency, codes were padded with leading zeros where necessary and invalid entries (missing or non-numeric) were excluded.
@@ -506,7 +506,7 @@ plot(bw_110_ppl, main = "Grp 110")
 
 ## **4.2 Spatio-Temporal KDE Mapping**
 
-Visualizing New F&B/Hospitality Registrations by Month
+**Visualizing New F&B/Hospitality Registrations by Month**
 
 ```{r}
 #| code-fold: true
@@ -859,7 +859,7 @@ ggplot(knox_df, aes(x = factor(ds), y = factor(dt), fill = p)) +
 In all cases, the number of observed space–time pairs did not exceed expectation under independence (p ≈ 1). This indicates that while business registrations are **spatially clustered** (as shown by quadrat counts, KDE, G- and K-function analyses), the **timing of registrations is largely independent of spatial proximity**. In other words, businesses open in the same hotspots (CBD, regional centres), but not in bursts within short temporal windows. Spatio-temporal interaction only emerged weakly at broader scales in the STIK analysis (1–2 km, 1–3 months), suggesting neighbourhood-level clustering over longer periods rather than micro-scale space–time surges.
 :::
 
-# 6 Discussion of Results and Implications for Urban Planning
+# **6 Discussion of Results and Implications for Urban Planning**
 
 ## **6.1 Results from Analyses**
 
