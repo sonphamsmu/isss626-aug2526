@@ -16,9 +16,9 @@ execute:
 
 ~[*Inside a Hawker Center (via TripAdvisor)*]{.smallcaps}~
 
-The Food & Beverage (F&B) and Hospitality sector is a vital pillar of Singapore’s economy, contributing significantly to both employment and tourism-driven revenue. In 2024, international visitor arrivals reached about **16.5 million**, and tourism receipts rose to **S\$29,781 million** (or \~SGD 29.8 billion), a strong recovery to pre-pandemic levels. Among the components of tourism spend, expenditure on Food & Beverage increased by 6% year-on-year in January - September 2024. The F&B services sector also plays a major role domestically: for example, in July 2025, its sales reached **S\$1.0 billion**, with fast food outlets and food caterers showing notable growth, and approximately a quarter of F&B sales happening online.
+The Food & Beverage (F&B) sector is a vital pillar of Singapore’s economy, contributing significantly to both employment and tourism-driven revenue. In 2024, international visitor arrivals reached about **16.5 million**, and tourism receipts rose to **S\$29,781 million** (or \~SGD 29.8 billion), a strong recovery to pre-pandemic levels. Among the components of tourism spend, expenditure on Food & Beverage increased by 6% year-on-year in January - September 2024. The F&B services sector also plays a major role domestically: for example, in July 2025, its sales reached **S\$1.0 billion**, with fast food outlets and food caterers showing notable growth, and approximately a quarter of F&B sales happening online.
 
-Beyond raw numbers, the sector deeply shapes everyday life—socializing, culture, lifestyle—through restaurants, hawker centers, cafés, bars, catering, etc. It’s also a key part of the hospitality value chain: hotels not only provide lodging but often generate substantial revenue from associated F&B (restaurants, banquets). The dynamic interplay between F&B manufacturers, drink producers, and service-based outlets influences urban planning (where clusters of eating and dining pop up), business location decisions, land-use, and labour markets.
+Beyond raw numbers, the sector deeply shapes everyday life—socializing, culture, lifestyle—through restaurants, hawker centers, cafés, bars, catering, etc. The dynamic interplay between F&B manufacturers, drink producers, and service-based outlets influences urban planning (where clusters of eating and dining pop up), business location decisions, land-use, and labour markets.
 
 # **2 Getting Started**
 
@@ -27,7 +27,7 @@ Beyond raw numbers, the sector deeply shapes everyday life—socializing, cultur
 In this exercise, we will use following packages:
 
 | Package | Description |
-|----|----|
+|------------------------------------|------------------------------------|
 | [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
 | [**spatstat**](https://spatstat.org/) | Provides functions for spatial statistics with a strong focus on analysing spatial point patterns. |
 | [**stpp**](https://cran.r-project.org/web/packages/stpp/index.html) | Provides statistical tools for analyzing the global and local second-order properties of spatio-temporal point processes. |
@@ -95,7 +95,7 @@ Below is the details of the business type selected:
 ### **2.2.2 Datasets**
 
 | **Dataset Name** | **Description** | **Format** | **Source** |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | ACRA (Accounting and Corporate Regulatory Authority) Information on Corporate Entities | Datasets of registered entities in Singapore. (We will select business entities registered between 1st January 2024 to 30th June 2025.) | CSV | [data.gov.sg](https://data.gov.sg/collections/2/view) |
 | SSIC: Singapore Standard Industrial Classification (SSIC) | Official system for classifying economic activity of business establishments in Singapore. | XLSX | [SSIC](https://classification.codes/classifications/industry/ssic-singapore) |
 | Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
@@ -863,9 +863,9 @@ In all cases, the number of observed space–time pairs did not exceed expectati
 
 ## **6.1 Results from Analyses**
 
-The spatial analysis of new F&B and hospitality businesses in Singapore (Jan 2024–Jun 2025) provides strong evidence of **non-random, clustered distribution patterns**.
+The spatial analysis of new F&B and manufacturing businesses in Singapore (Jan 2024–Jun 2025) provides strong evidence of **non-random, clustered distribution patterns**.
 
-**First-order analysis** usingKDE and quadrat counts revealed strong spatial heterogeneity. Division 56 (F&B services) registrations were highly concentrated in the Central Area (CBD, Orchard, Bugis), with secondary hotspots in mature regional centres such as Tampines and Jurong East. The Chi-squared test of CSR strongly rejected randomness, confirming clustering. By contrast, Group 107 (food manufacturing) and Group 110 (beverage manufacturing) showed much lower intensities overall, with activities concentrated in designated industrial estates rather than dispersed across the urban fabric. These findings reflect Singapore’s established land-use zoning, where F&B retail thrives in high-density commercial and residential zones, while manufacturing is contained within industrial clusters.
+**First-order analysis** using KDE and quadrat counts revealed strong spatial heterogeneity. Division 56 (F&B services) registrations were highly concentrated in the Central Area (CBD, Orchard, Bugis), with secondary hotspots in mature regional centres such as Tampines and Jurong East. The Chi-squared test of CSR strongly rejected randomness, confirming clustering. By contrast, Group 107 (food manufacturing) and Group 110 (beverage manufacturing) showed much lower intensities overall, with activities concentrated in designated industrial estates rather than dispersed across the urban fabric. These findings reflect Singapore’s established land-use zoning, where F&B retail thrives in high-density commercial and residential zones, while manufacturing is contained within industrial clusters.
 
 **Second-order analysis** using Nearest-neighbour functions and pair correlation functions indicated that F&B services (Div 56) exhibit strong clustering at micro-scales (\<50–150 m), consistent with hawker centres, malls, and food streets. Food manufacturing (Grp 107) showed clustering at broader scales (200–400 m), corresponding to concentration in specific industrial parks, while beverage manufacturing (Grp 110) displayed near-random or weak clustering, reflecting its niche and relatively small number of firms. Inhomogeneous K-function analysis confirmed that clustering persists for Div 56 even after adjusting for background density, suggesting effects beyond simple population concentration. Spatio-temporal K (STIK) and Knox tests, however, showed no strong evidence of simultaneous space–time clustering at fine scales (≤500 m, ≤30 days). Instead, weak interaction appeared at broader windows (1–2 km and 1–3 months), implying that while new businesses arise in the same hotspots, their registrations are not tightly synchronised in time.
 
