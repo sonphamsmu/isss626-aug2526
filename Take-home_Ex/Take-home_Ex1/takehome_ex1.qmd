@@ -30,15 +30,17 @@ In this exercise, we will use following packages:
 |------------------------------------|------------------------------------|
 | [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
 | [**spatstat**](https://spatstat.org/) | Provides functions for spatial statistics with a strong focus on analysing spatial point patterns. |
-| [**raster**](https://cran.r-project.org/web/packages/raster/) | Provides functions which reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format. |
+| [**stpp**](https://cran.r-project.org/web/packages/stpp/index.html) | Provides statistical tools for analyzing the global and local second-order properties of spatio-temporal point processes. |
 | [**tidyverse**](https://www.tidyverse.org/) | Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data. |
-| [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API |
-| [**httr**](https://httr.r-lib.org/) | Provide a wrapper for the [**curl**](https://cran.r-project.org/web/packages/curl/vignettes/intro.html) package, customised to the demands of modern web APIs. Key features: Functions for the most important http verbs: `GET()`, `HEAD()`, `PATCH()`, `PUT()`, `DELETE()` and `POST()`. |
-| [**dplyr**](https://dplyr.tidyverse.org/) | Provides a set of verbs that help solving the most common data manipulation challenges. |
-| [**lubridate**](https://lubridate.tidyverse.org/) | Handle date and date-time data type. |
+| [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API. |
+| [**httr**](https://httr.r-lib.org/) | Provide a wrapper for the [**curl**](https://cran.r-project.org/web/packages/curl/vignettes/intro.html) package, customised to the demands of modern web APIs. |
+| [**lubridate**](https://lubridate.tidyverse.org/) | Provides a set of functions for working with date-times. |
+| [**splancs**](https://cran.r-project.org/web/packages/splancs/index.html) | For display and analysis of spatial point pattern data. |
+| [**sfdep**](https://cran.r-project.org/web/packages/sfdep/index.html) | An interface to 'spdep' to integrate with 'sf' objects and the 'tidyverse'. |
+| [**surveillance**](https://cran.r-project.org/web/packages/surveillance/index.html) | Statistical methods for the modeling and monitoring of time series of counts, proportions and categorical data, as well as for the modeling of continuous-time point processes of epidemic phenomena. |
 
 ```{r}
-pacman::p_load(tidyverse, sf, spatstat, stpp, tmap, httr)
+pacman::p_load(tidyverse, sf, spatstat, stpp, tmap, httr, lubridate, splancs, sfdep, surveillance)
 ```
 
 ## **2.2 The Data**
@@ -97,7 +99,6 @@ Below is the details of the business type selected:
 | ACRA (Accounting and Corporate Regulatory Authority) Information on Corporate Entities | Datasets of registered entities in Singapore. (We will select business entities registered between 1st January 2024 to 30th June 2025.) | CSV | [data.gov.sg](https://data.gov.sg/collections/2/view) |
 | SSIC: Singapore Standard Industrial Classification (SSIC) | Official system for classifying economic activity of business establishments in Singapore. | XLSX | [SSIC](https://classification.codes/classifications/industry/ssic-singapore) |
 | Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
-| LTA MRT Station Exit | Geospatial data for Singapore’s MRT/LRT stations exit. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_b39d3a0871985372d7e1637193335da5/view) |
 
 ## **2.3 Data Importing & Wrangling**
 
@@ -105,7 +106,7 @@ Below is the details of the business type selected:
 
 The ACRA Corporate Entities CSV files were imported into R using [**tidyverse**](https://www.tidyverse.org/). The first 24 columns were retained, covering entity identifiers, names, incorporation dates, SSIC codes, and addresses. This ensured consistency across all files as we are dropping the unnecessary fields such as fields with excessive missing values or fields with only single values.
 
-```{r}
+```{r, eval=FALSE}
 folder_path <- "data/aspatial/ACRA"
 file_list <- list.files(path = folder_path,
                         pattern = "^ACRA*.*\\.csv$",
@@ -115,15 +116,27 @@ acra_data <- file_list %>%
   map_dfr(read_csv)
 ```
 
+```{r, echo=FALSE}
+acra_data <- read_rds("data/rds/acra_data.rds")
+```
+
 ```{r}
 glimpse(acra_data)
 ```
 
 The dataset consists of 2,026,935 rows and 53 columns.
 
-```{r}
+```{r, echo=FALSE, eval=FALSE}
 write_rds(acra_data,
           "data/rds/acra_data.rds")
+```
+
+```{r, echo=FALSE}
+acra_all_fnb <- read_rds("data/rds/acra_all_fnb.rds")
+biz_56 <- read_rds("data/rds/biz_56.rds")
+biz_107 <- read_rds("data/rds/biz_107.rds")
+biz_110 <- read_rds("data/rds/biz_110.rds")
+not_found <- read_rds("data/rds/postcodes_not_found.rds")
 ```
 
 ### **2.3.2 Tidying ACRA data**
@@ -138,11 +151,10 @@ Only businesses registered between **01-Jan-2024 and 30-Jun-2025** were retained
 The dataset was filtered to include only the **Food and Beverage / Hospitality categories**: **Division 56** – Food & Beverage Service Activities, **Group 107** – Manufacture of Other Food Products, **Group 110** – Manufacture of Beverages
 
 ```{r}
+#| code-fold: true
 date_min <- as_date("2024-01-01")
 date_max <- as_date("2025-06-30")
-```
 
-```{r}
 acra_all_fnb <- acra_data %>%
   # keep the first 24 cols 
   select(1:24) %>%
@@ -169,9 +181,9 @@ acra_all_fnb <- acra_data %>%
   filter(ssic_2d == "56" | ssic_3d %in% c("107", "110")) %>%
   # time fields
   mutate(
-    YEAR       = year(date),
-    MONTH_NUM  = month(date),
-    MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),
+  YEAR       = lubridate::year(date),
+  MONTH_NUM  = lubridate::month(date),
+  MONTH_ABBR = lubridate::month(date, label = TRUE, abbr = TRUE),
     fnb_bucket = case_when(
       ssic_2d == "56"          ~ "F&B Services (Div 56)",
       ssic_3d == "107"         ~ "Food Manufacturing (Grp 107)",
@@ -195,6 +207,7 @@ acra_all_fnb %>%
 ```
 
 ```{r}
+#| code-fold: true
 # separate data frames for each bucket
 biz_56  <- acra_all_fnb %>% filter(ssic_2d == "56")
 biz_107 <- acra_all_fnb %>% filter(ssic_3d == "107")
@@ -202,6 +215,7 @@ biz_110 <- acra_all_fnb %>% filter(ssic_3d == "110")
 ```
 
 ```{r}
+#| code-fold: true
 # Date column named `date` and a month column for plotting later:
 acra_all_fnb <- acra_all_fnb %>%
   mutate(
@@ -223,8 +237,8 @@ Unique six-digit postal codes were extracted from the ACRA dataset. To ensure co
 **Query the OneMap API**\
 Each postcode was sent to the OneMap Singapore API using the code chunk below. The API returned address details and coordinates (`X`, `Y` in SVY21 projection; `LATITUDE`, `LONGITUDE` in WGS84). Postcodes with no matches were logged separately for later review.
 
-```{r, cache=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-
+```{r, cache=TRUE, message=FALSE, eval=FALSE}
+#| code-fold: true
 rds_found     <- "data/rds/geocode_found.rds"
 rds_not_found <- "data/rds/geocode_not_found.rds"
 
@@ -266,6 +280,14 @@ dir.create("data", showWarnings = FALSE)
 }
 ```
 
+```{r, echo=FALSE}
+rds_found     <- "data/rds/geocode_found.rds"
+rds_not_found <- "data/rds/geocode_not_found.rds"
+  
+found     <- readRDS(rds_found)
+not_found <- readRDS(rds_not_found)
+```
+
 **Append Geocoding Results**\
 Geocoding was performed by extracting unique six-digit postal codes from the ACRA dataset and submitting them to the OneMap Singapore API. The API returned both address details and geographic coordinates, which were then joined back to the business records. Invalid or missing coordinates were cleaned, and duplicates were removed to ensure data quality. The final datasets were converted into spatial features (`sf` objects) in the SVY21 projection (EPSG:3414), enabling integration with planning boundaries and spatial analysis. To ensure reproducibility and avoid repeated API calls, the geocoded datasets and unresolved cases were saved as `.rds` files.
 
@@ -281,6 +303,7 @@ found <- found %>%
 ```
 
 ```{r}
+#| code-fold: true
 acra_all_fnb <- acra_all_fnb %>% left_join(found, by = c("postal_code" = "POSTAL"))
 biz_56       <- biz_56       %>% left_join(found, by = c("postal_code" = "POSTAL"))
 biz_107      <- biz_107      %>% left_join(found, by = c("postal_code" = "POSTAL"))
@@ -288,6 +311,7 @@ biz_110      <- biz_110      %>% left_join(found, by = c("postal_code" = "POSTAL
 ```
 
 ```{r}
+#| code-fold: true
 df_to_sf <- function(df, id_col = NULL) {
   df2 <- df %>%
     mutate(across(any_of(c("X","Y","LONGITUDE","LATITUDE")),
@@ -317,7 +341,7 @@ biz_107_sf      <- df_to_sf(biz_107,      id_col = "uen")
 biz_110_sf      <- df_to_sf(biz_110,      id_col = "uen")
 ```
 
-```{r}
+```{r, echo=FALSE, eval=FALSE}
 write_rds(acra_all_fnb, "data/rds/acra_all_fnb.rds")
 write_rds(biz_56,       "data/rds/biz_56.rds")
 write_rds(biz_107,      "data/rds/biz_107.rds")
@@ -325,11 +349,16 @@ write_rds(biz_110,      "data/rds/biz_110.rds")
 write_rds(not_found,    "data/rds/postcodes_not_found.rds") 
 ```
 
-```{r}
+```{r, eval=FALSE}
+#| code-fold: true
 biz_missing <- acra_all_fnb %>%
   mutate(X = suppressWarnings(as.numeric(X)), Y = suppressWarnings(as.numeric(Y))) %>%
   filter(is.na(X) | is.na(Y))
 write_rds(biz_missing, "data/rds/biz_missing_coords.rds")
+```
+
+```{r, echo=FALSE}
+biz_missing <- read_rds("data/rds/biz_missing_coords.rds")
 ```
 
 # **3 Exploratory Observation**
@@ -339,11 +368,9 @@ Before conducting the Spatial Point Pattern Analysis, we will first perform visu
 We will import the Singapore Master Plan 2019 (URA) Zoning Data:
 
 ```{r}
-# Load URA Subzone boundaries
 subzones <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaGEOJSON.geojson") %>%
   st_transform(crs = 3414)
 
-# Spatial join: assign each business to a subzone
 acra_all_fnb_sf <- st_join(acra_all_fnb_sf, subzones)
 ```
 
@@ -362,6 +389,7 @@ tmap_mode("plot")
 Reveal the distribution of newly registered businesses by month:
 
 ```{r}
+#| code-fold: true
 monthly_counts <- acra_all_fnb %>%
   mutate(date = as.Date(date), month = floor_date(date, "month")) %>%
   count(month)
@@ -381,15 +409,14 @@ ggplot(monthly_counts, aes(x = month, y = n)) +
 -   **Category Mix:** Service-oriented F&B dominate urban areas, while manufacturing clusters are more peripheral.
 :::
 
-# **4 Spatial Point Pattern Analysis**
+# **4 First-order Spatial and Spatio-Temporal Patterns Analysis**
 
-## **4.1 First-order spatial point pattern analysis**
-
-### **4.1.1 Computing kernel density estimation** 
+## **4.1 Computing kernel density estimation (KDE)**
 
 We will compute the kernel density estimate (KDE) for each business types using `bw.ppl`:
 
-```{r}
+```{r, echo=FALSE}
+#| code-fold: true
 sg_bound <- subzones %>% 
   st_make_valid() %>% 
   st_union() %>% 
@@ -400,6 +427,7 @@ sg_owin <- as.owin(sg_bound)
 ```
 
 ```{r}
+#| code-fold: true
 to_ppp <- function(sf_points, window_W) {
   sf_points <- st_transform(sf_points, 3414)
   coords <- st_coordinates(sf_points)
@@ -412,6 +440,8 @@ ppp_107  <- to_ppp(biz_107_sf, sg_owin)
 ppp_110  <- to_ppp(biz_110_sf, sg_owin)
 ```
 
+**All F&B Businesses:**
+
 ```{r}
 ppp_all_km <- rescale.ppp(ppp_all, 1000, "km")
 
@@ -423,7 +453,20 @@ bw_all_ppl <- density(ppp_all_km,
 plot(bw_all_ppl, main = "Intensity (KDE) — All F&B")
 ```
 
+::: {.callout-note title="Observation"}
+-   **Hotspot clearly visible in central Singapore (CBD / Orchard / Bugis area)** — shown by the yellow–red cluster.
+
+-   Other **moderate hotspots** appear in the east (Tampines, Pasir Ris) and north-east (Hougang, Serangoon).
+
+-   The west and north (Jurong, Woodlands, Yishun) show **lower but non-zero intensity**.
+
+-   Interpretation: F&B registrations are **heavily concentrated in commercial core and mature regional centers**, consistent with population density and retail activity.
+:::
+
+**By business group:**
+
 ```{r}
+#| code-fold: true
 ppp_56_km <- rescale.ppp(ppp_56, 1000, "km")
 ppp_107_km <- rescale.ppp(ppp_107, 1000, "km")
 ppp_110_km <- rescale.ppp(ppp_110, 1000, "km")
@@ -447,31 +490,400 @@ plot(bw_107_ppl, main = "Grp 107")
 plot(bw_110_ppl, main = "Grp 110")
 ```
 
-### **4.1.2 Clark-Evan Test for Nearest Neighbour Analysis**
+::: {#Takeaways .callout-note title="Takeaways"}
+-   Div 56 \>\> Grp 107 \>\> Grp 110 in terms of density scale.
+
+-   All three categories cluster in/around central Singapore, but with different intensity:
+
+    -   F&B (Div 56) → very widespread, many neighborhoods.
+
+    -   Food Manufacturing (Grp 107) → narrow CBD/airport-focused.
+
+    -   Beverages Manufacturing (Grp 110) → very sparse, niche clustering.
+
+-   This suggest F&B is **saturated in the core**, while FM is more tight, and BM remain **specialized**.
+:::
+
+## **4.2 Spatio-Temporal KDE Mapping**
+
+Visualizing New F&B/Hospitality Registrations by Month
+
+```{r}
+#| code-fold: true
+acra_all_fnb_sf <- acra_all_fnb_sf %>%
+  mutate(date = as.Date(date),
+         month = floor_date(date, "month"))
+
+months_seq   <- seq(as.Date("2024-01-01"), as.Date("2025-06-01"), by = "1 month")
+month_levels <- format(months_seq, "%b-%Y")
+
+acra_all_fnb_sf <- acra_all_fnb_sf %>%
+  mutate(month_f = format(month, "%b-%Y")) %>%
+  filter(month %in% months_seq) %>%
+  mutate(month_f = factor(month_f, levels = month_levels)) %>%
+  filter(!is.na(month_f))
+
+ggplot(acra_all_fnb_sf) +
+  geom_sf(size = 0.1) +
+  geom_sf(data = sg_bound, fill = NA, color = "grey50", linewidth = 0.2, inherit.aes = FALSE) +
+  facet_wrap(~ month_f, ncol = 4) +
+  labs(title = "New F&B/Hospitality Registrations by Month",
+       x = NULL, y = NULL) +
+  theme_minimal(base_size = 10)
+```
+
+```{r}
+#| code-fold: true
+#monthly points
+pts <- st_transform(acra_all_fnb_sf, 3414) |>
+  filter(!is.na(date)) |>
+  mutate(month = floor_date(date, "month"))
+
+#KDE for a given month
+kde_one_month <- function(sf_points, window, sigma = 500) {
+  M <- st_coordinates(sf_points)
+  if (nrow(M) < 3) return(NULL)
+  p <- ppp(M[,1], M[,2], window = window)
+  density(p, sigma = sigma, edge = TRUE)
+}
+
+# KDE for one month 
+kde_one_month <- function(sf_points, window, sigma = 500) {
+  M <- st_coordinates(sf_points)
+  if (nrow(M) < 3) return(NULL)               
+  p <- ppp(M[,1], M[,2], window = window)
+  density(p, sigma = sigma, edge = TRUE)      
+}
+
+# KDEs for all 18 months
+kde_by_month <- lapply(months_seq, function(m0) {
+  m_pts <- pts |> filter(month == m0)
+  kde_one_month(m_pts, sg_owin, sigma = 500)   
+})
+names(kde_by_month) <- month_levels
+
+plot_kde_grid <- function(kde_list, labels, idx, nrow = 4, ncol = 4, main_prefix = "KDE") {
+  old_par <- par(no.readonly = TRUE)
+  on.exit(par(old_par))
+  par(mfrow = c(nrow, ncol), mar = c(1.5, 1.5, 2, 1))
+  for (i in idx) {
+    if (i > length(kde_list)) { frame(); next }
+    z <- kde_list[[i]]
+    ttl <- labels[i]
+    if (is.null(z)) {
+      frame()
+      title(paste0(ttl, "\n(no data)"), cex.main = 0.9)
+    } else {
+      plot(z, main = paste0(main_prefix, " – ", ttl))
+      plot(sg_owin, add = TRUE)
+    }
+  }
+}
+
+plot_kde_grid(kde_by_month, month_levels, idx = 1:16, nrow = 4, ncol = 4, main_prefix = "F&B KDE")
+
+plot_kde_grid(kde_by_month, month_levels, idx = 17:18, nrow = 2, ncol = 2, main_prefix = "F&B KDE")
+```
+
+::: callout-note
+Spatio-temporal KDE mapping (Jan 2024 – Jun 2025) shows that new F&B and manufacturing businesses consistently cluster in Singapore’s central region, with intermittent strengthening in regional centres such as Tampines and Jurong East. The spatial pattern is stable across time, with only intensity fluctuating, suggesting sustained **central dominance** but gradual suburban spillover.
+:::
+
+## **4.3 Quadrat counts & Chi-squared test of CSR using quadrat counts**
+
+```{r}
+Q <- quadratcount(ppp_all, nx = 10, ny = 10)     
+plot(Q, main = "Quadrat counts – All F&B"); plot(ppp_all, add = TRUE, pch=20, cex=.2)
+quadrat.test(ppp_all, nx = 10, ny = 10)          
+```
+
+::: {.callout-note title="Conclusion"}
+**Reject CSR:** The observed pattern is **not random**; instead, it reflects **significant clustering and spatial heterogeneity**.
+:::
+
+**Choropleth map:**
+
+```{r}
+#| code-fold: true
+pts_all <- st_transform(acra_all_fnb_sf, 3414)
+bound <- st_as_sf(sg_bound) |> st_transform(3414)
+grid <- st_make_grid(bound, n = c(10, 10), square = TRUE) |>
+  st_as_sf() |>
+  mutate(id = row_number())
+
+cnt <- lengths(st_intersects(grid, pts_all))
+
+Qsf <- grid |>
+  mutate(
+    counts   = cnt,
+    area_km2 = as.numeric(st_area(grid)) / 1e6, 
+    dens_km2 = counts / area_km2
+  )
+
+tmap_mode("plot")
+tm_shape(Qsf) +
+  tm_polygons("counts", palette = "YlOrRd", style = "quantile",
+              title = "F&B Counts per Cell") +
+  tm_shape(bound) + tm_borders(col = "grey40") +
+  tm_layout(main.title = "Quadrat Counts (All F&B Businesses)",
+            legend.outside = TRUE)
+```
+
+::: callout-note
+-   Central quadrats (esp. CBD, Orchard, Bugis, and parts of Geylang) have **very high counts**.
+
+-   Peripheral quadrats (northern/northwest like Lim Chu Kang, southern islands, western industrial areas) have **very few or zero businesses**.
+
+-   The **distribution is highly uneven**, with clustering in central and regional hubs.
+:::
+
+Quadrat analysis of all F&B businesses reveals strong spatial heterogeneity. Counts are heavily concentrated in central quadrats (CBD, Orchard, Geylang), while peripheral quadrats often contain few or no businesses. The Chi-squared test of CSR (X² = 10,005, p \< 0.001) strongly rejects randomness, confirming that F&B business locations are spatially clustered rather than evenly or randomly distributed.
+
+# **5 Second-order Spatial and Spatio-Temporal Patterns Analysis**
+
+## **5.1 Clark-Evan Test for Nearest Neighbour Analysis**
 
 We will perform the Clark-Evans test of aggregation for a spatial point pattern using the `clarkevans.test()` function from the **`spatstat`** package.
 
-The test hypotheses are:
-
+::: {.callout-note title="Test Hypotheses"}
 Ho = The distribution of F&B businesses are randomly distributed.
 
-H1= The distribution of F&B businesses are not randomly distributed.
+H~1~= The distribution of F&B businesses are not randomly distributed.
 
 The 95% confident interval will be used.
+:::
 
 ```{r}
-clarkevans.test(ppp_all,
-                correction="none",
-                clipregion="sg_owin",
-                alternative=c("clustered"),
-                method="MonteCarlo",
-                nsim=39)
+clarkevans.test(ppp_all, correction="none", clipregion="sg_owin",             alternative=c("clustered"), method="MonteCarlo", nsim=99)
 ```
 
-**Conclusion**: **Reject H₀**. The distribution of F&B businesses is **statistically significantly clustered, not random**. This clustering is likely tied to underlying factors such as high population density in urban areas or specific government's planning.
+::: {.callout-note title="Conclusion"}
+**Reject H₀**. The distribution of F&B businesses is **statistically significantly clustered, not random**. This clustering is likely tied to underlying factors such as high population density in urban areas or specific government's planning.
+:::
+
+## **5.2 Spatial Point Patterns Analysis Methods**
+
+We will perform some SPPA methods to confirm on the above takeaways.
+
+**G-function (nearest-neighbour distribution)**
+
+```{r}
+#| code-fold: true
+pp_range_all <- ppp_all           
+lambda <- intensity(ppp_all)
+r_nn <- 1/(2*sqrt(lambda))
+rmax  <- 3 * r_nn               
+rseq  <- seq(0, rmax, length.out = 64)  
+```
+
+```{r}
+G_all <- Gest(ppp_all, r=rseq)
+G_56 <- Gest(ppp_56, r=rseq) 
+G_107 <- Gest(ppp_107, r=rseq) 
+G_110 <- Gest(ppp_110, r=rseq) 
+
+par(mfrow=c(2,2))
+plot(G_all)
+plot(G_56)
+plot(G_107)
+plot(G_110)
+```
+
+::: callout-note
+-   These plots confirms that overall F&B/manufacturing businesses, especially restaurants (Div 56), show strong clustering at small distances, consistent with dense food hubs and mall-based concentration.
+
+-   Food Manufacturing (Grp 107) shows clustering at broader scales. (100–300 m)
+
+-   Beverages Manufacturing (Grp 110) appear more randomly distributed due to their limited counts.
+:::
+
+**Pair correlation (local interactions)**
+
+```{r}
+pcf_all <- pcf(ppp_all, r=rseq, correction="translation")
+pcf_56 <- pcf(ppp_56, r=rseq, correction="translation")
+pcf_107 <- pcf(ppp_107, r=rseq, correction="translation")
+pcf_110 <- pcf(ppp_110, r=rseq, correction="translation")
+
+par(mfrow=c(2,2))
+plot(pcf_all)
+plot(pcf_56)
+plot(pcf_107)
+plot(pcf_110)
+```
+
+::: callout-note
+Pair correlation functions (PCF) again confirm strong short-range clustering. (Div 56) are highly concentrated within 0–50 m, (Grp 107) shows clustering at broader scales (up to \~200 m), (Grp 110) display weaker or near-random distribution.
+:::
+
+**Inhomogeneous K-function**
+
+```{r, eval=FALSE}
+#| code-fold: true
+bw_all_dg  <- bw.diggle(ppp_all)
+rho_all <- density(ppp_all)
+Ki_all  <- Kinhom(ppp_all, lambda = rho_all)
+
+bw_56_dg  <- bw.diggle(ppp_56)
+rho_56 <- density(ppp_56)
+Ki_56  <- Kinhom(ppp_56, lambda = rho_56)
+
+bw_107_dg  <- bw.diggle(ppp_107)
+rho_107 <- density(ppp_107)
+Ki_107  <- Kinhom(ppp_107, lambda = rho_107)
+
+bw_110_dg  <- bw.diggle(ppp_110)
+rho_110 <- density(ppp_110)
+Ki_110  <- Kinhom(ppp_110, lambda = rho_110)
+
+par(mfrow=c(2,2))
+plot(Ki_all, main = "Inhomogeneous K – All F&B")
+plot(Ki_56, main = "Div 56")
+plot(Ki_107, main = "Grp 107")
+plot(Ki_110, main = "Grp 110")
+```
+
+![](/images/inhomogeneous%20k.png)
+
+::: callout-note
+F&B businesses and restaurants (Div 56) remain significantly clustered at local-to-regional scales (up to \~3 km). (Grp 107) show weaker clustering, visible mainly at broader scales (\>4 km). (Grp 110) appear nearly random.
+:::
+
+## **5.3 Spatio-temporal Point Patterns Analysis Methods**
+
+We will reveal businesses clustering in both space and time simultaneously.
+
+**Homogeneous STIK Method**
+
+```{r}
+#| code-fold: true
+sg_bound <- sg_bound %>%
+  st_union() %>%
+  st_transform(3414)
+
+s.region <- st_coordinates(sg_bound)[, 1:2]
+
+pts_sf <- st_transform(acra_all_fnb_sf, 3414) |>
+  filter(!is.na(date))
+
+XY   <- st_coordinates(pts_sf)
+t0   <- min(as.Date(pts_sf$date), na.rm = TRUE)
+tday <- as.numeric(as.Date(pts_sf$date) - t0)   
+xyt <- as.3dpoints(x = XY[,1], y = XY[,2], t = tday)   
+
+u <- seq(0, 1500, by = 100)  
+v <- seq(0,   90, by =   7)  
+```
+
+```{r, eval=FALSE}
+#Homogeneous STIK (quick baseline)
+stik_hom <- STIKhat(
+  xyt      = xyt,
+  s.region = s.region,
+  t.region = range(tday, na.rm = TRUE),
+  dist     = u,
+  times    = v,
+  correction = "isotropic"
+)
+
+plotK(stik_hom, type = "contour", legend = TRUE, main = "STIK (homogeneous)")
+```
+
+![](/images/stik_homogenious.png)
+
+::: callout-note
+Homogeneous STIK analysis for all F&B businesses indicates that spatio-temporal clustering is not clear at small scales (≤500 m, ≤30 days). Clustering becomes evident at broader scales, with businesses tending to co-locate within 1–2 km and within 1–3 months of each other. This suggests that new registrations emerge in bursts at the neighbourhood or regional level, rather than in highly localised, short-term clusters.
+:::
+
+**Knox Space–Time Interaction Method**
+
+We applied the Knox test across a grid of spatial (200 m – 5 km) and temporal (90 – 180 days) thresholds.
+
+```{r}
+#| code-fold: true
+pts_knox <- pts_sf |>
+  mutate(t_days = as.numeric(date - min(date, na.rm = TRUE)))
+
+XY <- st_coordinates(pts_knox)
+T  <- as.numeric(pts_knox$date - min(pts_knox$date))
+
+knox_result <- knox(
+  coords = XY,         
+  times  = T,          
+  ds     = 500,        
+  dt     = 30,         
+  method = "bootstrap",
+  nsim   = 199,
+  eps.s  = 1e-6,       
+  eps.t  = 1e-6        
+)
+
+knox_result
+```
+
+```{r}
+#| code-fold: true
+ds_vals <- c(200, 500, 1000, 2000, 5000)   
+dt_vals <- c(90, 120, 180)       
+
+knox_grid <- expand.grid(ds = ds_vals, dt = dt_vals)
+
+results <- apply(knox_grid, 1, function(row) {
+  k <- knox(
+    coords = XY,
+    times  = T,
+    ds     = row[["ds"]],
+    dt     = row[["dt"]],
+    method = "bootstrap",
+    nsim   = 199,
+    eps.s  = 1e-6, eps.t = 1e-6
+  )
+  c(ds = row[["ds"]], dt = row[["dt"]],
+    obs = k$statistic["observed"],
+    exp = k$statistic["expected"],
+    p   = k$p.value)
+})
+
+knox_df <- as.data.frame(t(results))
+
+ggplot(knox_df, aes(x = factor(ds), y = factor(dt), fill = p)) +
+  geom_tile(color = "grey70") +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  labs(x = "Spatial threshold (m)", y = "Temporal threshold (days)",
+       fill = "p-value",
+       title = "Knox test grid: spatio-temporal clustering") +
+  theme_minimal()
+```
+
+::: callout-note
+In all cases, the number of observed space–time pairs did not exceed expectation under independence (p ≈ 1). This indicates that while business registrations are **spatially clustered** (as shown by quadrat counts, KDE, G- and K-function analyses), the **timing of registrations is largely independent of spatial proximity**. In other words, businesses open in the same hotspots (CBD, regional centres), but not in bursts within short temporal windows. Spatio-temporal interaction only emerged weakly at broader scales in the STIK analysis (1–2 km, 1–3 months), suggesting neighbourhood-level clustering over longer periods rather than micro-scale space–time surges.
+:::
+
+# 6 Discussion of Results and Implications for Urban Planning
+
+## **6.1 Results from Analyses**
+
+The spatial analysis of new F&B and hospitality businesses in Singapore (Jan 2024–Jun 2025) provides strong evidence of **non-random, clustered distribution patterns**.
+
+**First-order analysis** usingKDE and quadrat counts revealed strong spatial heterogeneity. Division 56 (F&B services) registrations were highly concentrated in the Central Area (CBD, Orchard, Bugis), with secondary hotspots in mature regional centres such as Tampines and Jurong East. The Chi-squared test of CSR strongly rejected randomness, confirming clustering. By contrast, Group 107 (food manufacturing) and Group 110 (beverage manufacturing) showed much lower intensities overall, with activities concentrated in designated industrial estates rather than dispersed across the urban fabric. These findings reflect Singapore’s established land-use zoning, where F&B retail thrives in high-density commercial and residential zones, while manufacturing is contained within industrial clusters.
+
+**Second-order analysis** using Nearest-neighbour functions and pair correlation functions indicated that F&B services (Div 56) exhibit strong clustering at micro-scales (\<50–150 m), consistent with hawker centres, malls, and food streets. Food manufacturing (Grp 107) showed clustering at broader scales (200–400 m), corresponding to concentration in specific industrial parks, while beverage manufacturing (Grp 110) displayed near-random or weak clustering, reflecting its niche and relatively small number of firms. Inhomogeneous K-function analysis confirmed that clustering persists for Div 56 even after adjusting for background density, suggesting effects beyond simple population concentration. Spatio-temporal K (STIK) and Knox tests, however, showed no strong evidence of simultaneous space–time clustering at fine scales (≤500 m, ≤30 days). Instead, weak interaction appeared at broader windows (1–2 km and 1–3 months), implying that while new businesses arise in the same hotspots, their registrations are not tightly synchronised in time.
+
+## **6.2 Implications for planning and management**
+
+First, the persistence of micro-scale clustering in F&B services supports the continued relevance of **mixed-use nodes and neighbourhood centres** in sustaining vibrant food ecosystems. Planning for adequate retail and food spaces in both central and suburban growth areas can reinforce accessibility and reduce over-concentration in the core.
+
+Second, the distinct clustering of food and beverage manufacturing in industrial zones highlights the importance of **protecting and upgrading industrial land parcels** suited for food processing, especially with **Singapore’s “30 by 30” food security strategy**. Spatial monitoring of where such clusters emerge or decline can inform zoning adjustments and targeted infrastructure (e.g., warehouses or cold chain logistics).
+
+Finally, the absence of strong spatio-temporal bursts suggests that business formation is steady rather than boom-and-bust. This provides planners with a relatively predictable trajectory for **incremental provision of facilities**, rather than needing rapid, reactive expansions.
+
+In conclusion, spatial analysis of F&B business formation reveals differentiated patterns between retail services and manufacturing subsectors. Recognising these differences can help planners balance central vibrancy with suburban growth, protect industrial clusters for food production, and support sustainable land use that aligns with Singapore’s broader economic and food security objectives.
 
 # **References**
 
--   **Singapore Department of Statistics (SingStat).** *Monthly Retail Sales and Food & Beverage Services Statistics, July 2025.* [https://www.singstat.gov.sg/mrs](https://www.singstat.gov.sg/mrs?utm_source=chatgpt.com)
--   **Singapore Department of Statistics (SingStat).** *Tourism Statistics – Industry & Services.* [https://www.singstat.gov.sg/find-data/search-by-theme/industry/tourism](https://www.singstat.gov.sg/find-data/search-by-theme/industry/tourism?utm_source=chatgpt.com)
--   **Singapore Tourism Board (STB).** *Singapore achieves historical high in tourism receipts in 2024.* (Press Release, 29 January 2025). [https://www.stb.gov.sg/about-stb/media-publications/media-centre/singapore-achieves-historical-high-in-tourism-receipts-in-2024/](https://www.stb.gov.sg/about-stb/media-publications/media-centre/singapore-achieves-historical-high-in-tourism-receipts-in-2024/?utm_source=chatgpt.com)
+-   Singapore Department of Statistics (SingStat). *Monthly Retail Sales and Food & Beverage Services Statistics, July 2025.* [https://www.singstat.gov.sg/mrs](https://www.singstat.gov.sg/mrs?utm_source=chatgpt.com)
+-   Singapore Department of Statistics (SingStat). *Tourism Statistics – Industry & Services.* [https://www.singstat.gov.sg/find-data/search-by-theme/industry/tourism](https://www.singstat.gov.sg/find-data/search-by-theme/industry/tourism?utm_source=chatgpt.com)
+-   Singapore Tourism Board (STB). *Singapore achieves historical high in tourism receipts in 2024.* (Press Release, 29 January 2025). [https://www.stb.gov.sg/about-stb/media-publications/media-centre/singapore-achieves-historical-high-in-tourism-receipts-in-2024/](https://www.stb.gov.sg/about-stb/media-publications/media-centre/singapore-achieves-historical-high-in-tourism-receipts-in-2024/?utm_source=chatgpt.com)
+-   Kam, T. S. (2024). *R for Geospatial Data Science and Analytics*. <https://r4gdsa.netlify.app/>
+-   Baddeley, A., Rubak, E., & Turner, R. (2015). *Spatial Point Patterns: Methodology and Applications with R*. Chapman & Hall/CRC.
+-   Diggle, P. J. (2013). *Statistical Analysis of Spatial and Spatio-Temporal Point Patterns* (3rd ed.). CRC Press.
