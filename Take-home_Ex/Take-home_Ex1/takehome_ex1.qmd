@@ -27,7 +27,7 @@ Beyond raw numbers, the sector deeply shapes everyday life—socializing, cultur
 In this exercise, we will use following packages:
 
 | Package | Description |
-|------------------------------------|------------------------------------|
+|----|----|
 | [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
 | [**spatstat**](https://spatstat.org/) | Provides functions for spatial statistics with a strong focus on analysing spatial point patterns. |
 | [**stpp**](https://cran.r-project.org/web/packages/stpp/index.html) | Provides statistical tools for analyzing the global and local second-order properties of spatio-temporal point processes. |
@@ -95,7 +95,7 @@ Below is the details of the business type selected:
 ### 2.2.2 Datasets
 
 | **Dataset Name** | **Description** | **Format** | **Source** |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | ACRA (Accounting and Corporate Regulatory Authority) Information on Corporate Entities | Datasets of registered entities in Singapore. (We will select business entities registered between 1st January 2024 to 30th June 2025.) | CSV | [data.gov.sg](https://data.gov.sg/collections/2/view) |
 | SSIC: Singapore Standard Industrial Classification (SSIC) | Official system for classifying economic activity of business establishments in Singapore. | XLSX | [SSIC](https://classification.codes/classifications/industry/ssic-singapore) |
 | Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | GEOJSON | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
