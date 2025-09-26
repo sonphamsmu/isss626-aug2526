@@ -1,7 +1,7 @@
 ---
 title: "Hands-on Exercise 5: Global Measures of Spatial Autocorrelation"
 author: "PHAM Hung Son"
-date: "Sep 15, 2025"
+date: "Sep 22, 2025"
 date-modified: "last-modified"
 format: 
   html:
@@ -231,7 +231,7 @@ bperm
 
 **Interpretation**
 
--    Both the asymptotic test (Section 5.1) and the Monte Carlo simulation (Section 5.2) point to the same conclusion: **GDP per capita in Hunan province exhibits significant positive spatial autocorrelation.**
+-   Both the asymptotic test (Section 5.1) and the Monte Carlo simulation (Section 5.2) point to the same conclusion: **GDP per capita in Hunan province exhibits significant positive spatial autocorrelation.**
 
 -   In other words: regions with high GDP per capita tend to be **clustered near other wealthy regions**, while poorer regions are also spatially clustered.
 
