@@ -1,5 +1,7 @@
 ---
-title: "isss626-aug2526"
+title: "ISSS626 - Geospatial Analytics and Applications"
 ---
 
-Welcome onboard!
+Here you’ll find my coursework, including exercises and assignments enriched with geospatial visualizations and analytical insights. Feel free to explore the projects I’ve created during the course.
+
+-SP-
