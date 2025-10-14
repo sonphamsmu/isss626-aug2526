@@ -1,0 +1,348 @@
+---
+title: "Take-home Exercise 2: Urban Mobility Pattern Analysis"
+author: "PHAM Hung Son"
+date: "Oct 06, 2025"
+date-modified: "last-modified"
+format: 
+  html:
+    toc-depth: 4
+    toc-expand: true
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# **1 Introduction**
+
+![](images/clipboard-112946526.png)
+
+~[*via: Land Transport Authority (LTA)*]{.smallcaps}~
+
+## **1.1 Overview**
+
+Urban mobility refers to how people and goods move within and between cities through modes such as walking, cycling, public transit, and private vehicles. With rapid urbanisation and growing transport demand, cities are more reliant on data-driven planning to enhance accessibility, reduce congestion, and promote sustainability. The availability of spatial datasets, such as bus passenger volumes from LTA DataMall may offers new opportunities to understand mobility dynamics and support smarter transport policies.
+
+## **1.2 Objectives**
+
+This exercise explores how **Local Measures of Spatial Autocorrelation (LMSA)** and **Emerging Hot Spot Analysis (EHSA)** can reveal spatial and spatio-temporal patterns in bus passenger trips across Singapore.
+
+The key objectives are:
+
+-   Identify local clusters and spatial outliers of passenger trip volumes using LMSA.
+
+-   Detect evolving hot and cold spots of travel demand across different time periods using EHSA.
+
+-   Interpret how these spatial patterns inform more efficient and equitable urban mobility and land-use planning.
+
+# **2 Getting Started**
+
+## **2.1 The Packages**
+
+In this exercise, we will use following packages:
+
+| Package | Description |
+|----|----|
+| [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
+| [**tidyverse**](https://www.tidyverse.org/) | Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data. |
+| [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API. |
+| [**sfdep**](https://cran.r-project.org/web/packages/sfdep/index.html) | An interface to 'spdep' to integrate with 'sf' objects and the 'tidyverse'. |
+| [**knitr**](https://cran.r-project.org/web/packages/knitr/index.html) | Provides a general-purpose tool for dynamic report generation in R using Literate Programming techniques. |
+| [**rvest**](https://cran.r-project.org/web/packages/rvest/index.html) | Wrappers around the 'xml2' and 'httr' packages to make it easy to download, then manipulate, HTML and XML. |
+| [**corrplot**](https://cran.r-project.org/web/packages/corrplot/) | Provides functions for visualizing correlation matrices. |
+| [**heatmaply**](https://cran.r-project.org/web/packages/heatmaply/) | Provides an easy-to-use interface for creating interactive heatmaps. |
+| [**ggplot2**](https://ggplot2.tidyverse.org/) | Provides graphics plots and mappings. |
+| [**viridis**](https://cran.r-project.org/web/packages/viridis/index.html) | Color maps designed to improve graph readability. |
+
+```{r}
+pacman::p_load(tidyverse, sf, sfdep, tmap, knitr, rvest, viridis)
+```
+
+## **2.2 Datasets**
+
+| **Dataset Name** | **Description** | **Format** | **Source** |
+|----|----|----|----|
+| Passenger Volume by Origin Destination Bus Stops | Returns number of trips by weekdays and weekends from the origin to destination bus stops. | JSON/CSV | [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html) |
+| Bus Stop Location | A point representation to indicate the position where buses should stop to pick up or drop off passengers. | SHP | [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html) |
+| Singapore Master Plan 2019 (URA) Zoning Data | Singapore's land-use zones: residential, commercial, mixed-use, industrial. | KML | [data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) |
+
+## **2.3 Importing datasets to R environment**
+
+First, we will load Bus Stop Location data using *st_read().*
+
+```{r}
+BusStop = st_read(dsn = "data/ltadata/",
+                  layer = "BusStop") %>%
+  st_transform(crs = 3414)
+```
+
+Next, Singapore Zoning Data will be loaded. Note that we will select **SVY21 (EPSG:3414)**, which is the standard projected coordinate system of Singapore for this exercise.
+
+```{r}
+mpsz <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>%
+  st_transform(crs = 3414)
+```
+
+Relevant attributes were extracted from the HTML description for each polygon, including **region**, **planning area**, **subzone name**, and **subzone code**. Unnecessary columns were removed, and the `geometry` column was moved to the end for a tidy data structure.
+
+```{r}
+extract_kml_field <- function(html_text, field_name) {
+  if (is.na(html_text) || html_text == "") return(NA_character_)
+  
+  page <- read_html(html_text)
+  rows <- page %>% html_elements("tr")
+  
+  value <- rows %>%
+    keep(~ html_text2(html_element(.x, "th")) == field_name) %>%
+    html_element("td") %>%
+    html_text2()
+  
+  if (length(value) == 0) NA_character_ else value
+}
+```
+
+```{r}
+mpsz <- mpsz %>%
+  mutate(
+    REGION_N = map_chr(Description, extract_kml_field, "REGION_N"),
+    PLN_AREA_N = map_chr(Description, extract_kml_field, "PLN_AREA_N"),
+    SUBZONE_N = map_chr(Description, extract_kml_field, "SUBZONE_N"),
+    SUBZONE_C = map_chr(Description, extract_kml_field, "SUBZONE_C")
+  ) %>%
+  select(-Name, -Description) %>%
+  relocate(geometry, .after = last_col())
+```
+
+The cleaned and processed subzone boundary dataset was saved as an `.rds` file for faster loading and reproducible analysis in later steps.
+
+```{r}
+write_rds(mpsz, "data/rds/mpsz.rds")
+```
+
+Next, we will import *Passenger Volume by Origin Destination Bus Stops* using read_csv() function.
+
+```{r}
+odbus <- read_csv("data/ltadata/origin_destination_bus_202508.csv")
+```
+
+Since there are a few bus stops that are located outside of Singapore boundary (Woodlands Checkpoint for example), we want to extract Bus Stops that stay within SG's boundary for simplification.
+
+```{r}
+BusStop_in_SG <- st_join(
+  BusStop, mpsz,
+  join = st_within,
+  left = FALSE)
+```
+
+```{r}
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(BusStop_in_SG) +
+  tm_dots()
+```
+
+## **2.4 Hexagon Grid Creation**
+
+**Deriving Analytical Hexagon**
+
+A **hexagonal grid** with a 375m cell size (to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf)) was generated to represent analytical zones across Singapore. It covers the extent of the Master Plan 2019 subzones.
+
+```{r}
+hexagon <- st_make_grid(mpsz,
+                        cellsize = 375,
+                        what = "polygon",
+                        square = FALSE) %>%
+  st_sf()
+```
+
+**Filtering hexagons with bus stops**
+
+Each hexagon was checked for intersections with bus stop locations. Only hexagons containing at least one bus stop were retained, ensuring that the analysis focuses on relevant transport activity zones.
+
+```{r}
+hexagon$n_collisions =
+  lengths(st_intersects(
+    hexagon, BusStop_in_SG))
+
+hexagon <- filter(hexagon, n_collisions > 0)
+```
+
+**Assigning IDs to each hexagon**
+
+Unique identifiers (`HEX_ID`) were assigned to each valid hexagon to support spatial joins and temporal aggregation in later analysis. The resulting hexagon dataset serves as the base spatial framework for calculating passenger trip volumes and performing LMSA and EHSA.
+
+```{r}
+hexagon <- hexagon %>%
+  select(, -n_collisions) #optional can remove
+
+hexagon$HEX_ID <- sprintf(
+  "H%04d", seq_len(nrow(hexagon))) %>%
+  as.factor()
+
+kable(head(hexagon))
+```
+
+## **2.5 Trip Generation Data Preparation**
+
+**Cleaning the data**
+
+We will select and rename key fields to focus on **origin bus stop**, **day type**, **hour**, and **total trips**. Converted bus stop codes to factor type for consistent joins and aggregation later.
+
+```{r}
+trips <- odbus %>%
+  select(c(ORIGIN_PT_CODE, DAY_TYPE, TIME_PER_HOUR, TOTAL_TRIPS)) %>%
+  rename(BUS_STOP_N = ORIGIN_PT_CODE) %>%
+  rename(HOUR_OF_DAY = TIME_PER_HOUR) %>%
+  rename(TRIPS = TOTAL_TRIPS)
+trips$BUS_STOP_N <- as.factor(trips$BUS_STOP_N)
+kable(head(trips))
+```
+
+Perform a spatial intersection between bus stops and the analytical hexagon grid to assign each bus stop to a unique **HEX_ID**. This creates a lookup table linking stops to zones.
+
+```{r}
+bs_hex <- st_intersection(
+  BusStop, hexagon) %>%
+  st_drop_geometry() %>%
+  select(c(BUS_STOP_N, HEX_ID))
+kable(head(bs_hex))
+```
+
+Adding HEX_ID into bus trips data: merge the **HEX_ID** information into the trip dataset, allowing each trip record to be spatially referenced to a specific hexagon zone.
+
+```{r}
+trips <- inner_join(trips, bs_hex)
+kable(head(trips))
+```
+
+## **2.6 Trip Aggregation by Time Period**
+
+We will refer to the time intervals provided in the table below to compute the passenger trips generated by origin at the hexagon level.
+
+| Peak hour period       | Bus tap on time |
+|------------------------|-----------------|
+| Weekday morning peak   | 6am to 9am      |
+| Weekday afternoon peak | 5pm to 8pm      |
+| Weekend/holiday        | 11am to 8pm     |
+
+**Classify windows & clean hour**
+
+We convert `HOUR_OF_DAY` to integer and tagged each record into one of the three analysis windows (WKDAY_AM, WKDAY_PM, WKEND_HOL). Records outside the windows are dropped to keep only relevant demand.
+
+```{r}
+is_weekend_or_holiday <- function(x) {
+  str_detect(str_to_upper(x), "WEEKEND|HOLIDAY|PH")
+}
+
+trips <- trips %>%
+  mutate(HOUR_OF_DAY = as.integer(HOUR_OF_DAY))
+```
+
+We will group by `HEX_ID` and `WINDOW`, sum `TRIPS` to convert into each time window.
+
+```{r}
+trips_window <- trips %>%
+  mutate(
+    WINDOW = case_when(
+      !is_weekend_or_holiday(DAY_TYPE) & HOUR_OF_DAY >= 6  & HOUR_OF_DAY <= 8  ~ "WKDAY_AM",
+      !is_weekend_or_holiday(DAY_TYPE) & HOUR_OF_DAY >= 17 & HOUR_OF_DAY <= 19 ~ "WKDAY_PM",
+      is_weekend_or_holiday(DAY_TYPE)  & HOUR_OF_DAY >= 11 & HOUR_OF_DAY <= 19 ~ "WKEND_HOL",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(WINDOW))
+```
+
+Pivot to one row per `HEX_ID` with columns `WKDAY_AM`, `WKDAY_PM`, `WKEND_HOL`, and computed an overall `TRIPS_TOTAL` for quick reference. We also verify totals across windows to catch anomalies before mapping or running spatial statistics.
+
+```{r}
+hex_by_window <- trips_window %>%
+  group_by(HEX_ID, WINDOW) %>%
+  summarise(TRIPS = sum(TRIPS, na.rm = TRUE), .groups = "drop")
+
+hex_trips <- hex_by_window %>%
+  pivot_wider(
+    names_from  = WINDOW,
+    values_from = TRIPS,
+    values_fill = 0
+  ) %>%
+  mutate(TRIPS_TOTAL = rowSums(across(c(WKDAY_AM, WKDAY_PM, WKEND_HOL)), na.rm = TRUE))
+
+hex_trips %>%
+  summarise(across(c(WKDAY_AM, WKDAY_PM, WKEND_HOL, TRIPS_TOTAL), sum, na.rm = TRUE))
+```
+
+Left-joined the aggregated table back to the `hexagon` `sf` layer by `HEX_ID`, producing `hex_trips_sf` as the spatial dataset we will use to map and feed into LMSA/EHSA. After that we will save the output into .rds and .csv files for later use.
+
+```{r}
+hex_trips_sf <- hexagon %>%
+  select(HEX_ID) %>%
+  left_join(hex_trips, by = "HEX_ID") %>%
+  mutate(across(c(WKDAY_AM, WKDAY_PM, WKEND_HOL, TRIPS_TOTAL), ~ replace_na(., 0)))
+```
+
+```{r}
+saveRDS(hex_trips_sf, "data/rds/hex_trips_by_period.rds")
+write_csv(st_drop_geometry(hex_trips_sf), "data/rds/hex_trips_by_period.csv")
+```
+
+## **2.7 Visualization & Overview**
+
+```{r fig.width=8, fig.height=8, out.width="100%", dpi=300}
+plot_trip_map <- function(data, var, title, subtitle) {
+  ggplot() +
+    geom_sf(data = mpsz, fill = "grey95", color = "white", size = 0.1) +
+    geom_sf(data = data, aes_string(fill = var), color = NA) +
+    scale_fill_viridis(option = "C", trans = "sqrt", name = "Trips") +
+    labs(title = title,
+         subtitle = subtitle,
+         caption = "Source: LTA DataMall (Passenger Volume by OD Bus Stops)") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 12),
+      legend.position = "bottom",
+      legend.key.width = unit(2, "cm"),
+      axis.text = element_text(size = 10),
+      panel.grid = element_blank()
+    )
+}
+
+# Separate plots
+p_am <- plot_trip_map(
+  hex_trips_sf, "WKDAY_AM",
+  "Weekday Morning Peak (06:00 – 09:00)",
+  "Passenger Trips by Origin (Hexagon Level)"
+)
+
+p_pm <- plot_trip_map(
+  hex_trips_sf, "WKDAY_PM",
+  "Weekday Afternoon Peak (17:00 – 20:00)",
+  "Passenger Trips by Origin (Hexagon Level)"
+)
+
+p_wknd <- plot_trip_map(
+  hex_trips_sf, "WKEND_HOL",
+  "Weekend / Holiday (11:00 – 20:00)",
+  "Passenger Trips by Origin (Hexagon Level)"
+)
+
+p_am
+p_pm
+p_wknd
+```
+
+::: {.callout-note title="Obsevation"}
+The spatial distribution of passenger trips shows clear variations across Singapore.
+
+During **Weekday morning peak (06:00 - 09:00)**, the most intensive origin activity is concentrated in the **north and northeast residential towns** such as **Woodlands, Yishun, Punggol, and Sengkang**, reflecting outbound commuting flows toward employment zones in the Central Region. Peripheral areas with low residential density (e.g., western industrial estates and southern coastal zones) show minimal activity.
+
+In the **Weekday afternoon peak (17:00 - 20:00)** period, the high-origin zones shift toward the **Central and Eastern regions**, indicating return trips from workplaces and schools. Moderate activity is also observed in suburban interchange areas (e.g., Tampines, Jurong East), representing redistribution during evening travel peaks.
+
+On **Weekends/Holidays (11:00 – 20:00)**, trip origins are more **spatially dispersed**, with hotspots emerging near **town centres, shopping districts (e.g., Orchard, Tampines), and recreation hubs (e.g., Sentosa, East Coast Park)**. The distribution suggests leisure-driven and discretionary mobility patterns.
+:::
+
+## **Reference**
+
+-   Kam, T. S. (2024). *Emerging Hot Spot Analysis.*<https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa>
