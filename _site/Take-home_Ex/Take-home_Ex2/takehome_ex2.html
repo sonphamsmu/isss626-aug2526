@@ -190,6 +190,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex05/inclass_ex5.html">
  <span class="dropdown-text">In-class Exercise 5</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex07/inclass_ex7.html">
+ <span class="dropdown-text">In-class Exercise 7</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -239,10 +243,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages"><strong>2.1 The Packages</strong></a></li>
   <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets"><strong>2.2 Datasets</strong></a></li>
   <li><a href="#importing-datasets-to-r-environment" id="toc-importing-datasets-to-r-environment" class="nav-link" data-scroll-target="#importing-datasets-to-r-environment"><strong>2.3 Importing datasets to R environment</strong></a></li>
-  <li><a href="#hexagon-grid-creation" id="toc-hexagon-grid-creation" class="nav-link" data-scroll-target="#hexagon-grid-creation"><strong>2.4 Hexagon Grid Creation</strong></a></li>
-  <li><a href="#trip-generation-data-preparation" id="toc-trip-generation-data-preparation" class="nav-link" data-scroll-target="#trip-generation-data-preparation"><strong>2.5 Trip Generation Data Preparation</strong></a></li>
-  <li><a href="#trip-aggregation-by-time-period" id="toc-trip-aggregation-by-time-period" class="nav-link" data-scroll-target="#trip-aggregation-by-time-period"><strong>2.6 Trip Aggregation by Time Period</strong></a></li>
-  <li><a href="#visualization-overview" id="toc-visualization-overview" class="nav-link" data-scroll-target="#visualization-overview"><strong>2.7 Visualization &amp; Overview</strong></a></li>
+  </ul></li>
+  <li><a href="#hexagon-grid-creation-trips-data-preparation" id="toc-hexagon-grid-creation-trips-data-preparation" class="nav-link" data-scroll-target="#hexagon-grid-creation-trips-data-preparation"><strong>3 Hexagon Grid Creation &amp; Trips Data Preparation</strong></a>
+  <ul>
+  <li><a href="#creating-hexagon-grid" id="toc-creating-hexagon-grid" class="nav-link" data-scroll-target="#creating-hexagon-grid"><strong>3.1 Creating Hexagon Grid</strong></a></li>
+  <li><a href="#trip-generation-data-preparation" id="toc-trip-generation-data-preparation" class="nav-link" data-scroll-target="#trip-generation-data-preparation"><strong>3.2 Trip Generation Data Preparation</strong></a></li>
+  <li><a href="#trip-aggregation-by-time-period" id="toc-trip-aggregation-by-time-period" class="nav-link" data-scroll-target="#trip-aggregation-by-time-period"><strong>3.3 Trip Aggregation by Time Period</strong></a></li>
+  <li><a href="#visualization-exploratory-data-analysis-eda" id="toc-visualization-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#visualization-exploratory-data-analysis-eda"><strong>3.4 Visualization &amp; Exploratory Data Analysis (EDA)</strong></a></li>
+  </ul></li>
+  <li><a href="#local-measures-of-spatial-association-lmsa" id="toc-local-measures-of-spatial-association-lmsa" class="nav-link" data-scroll-target="#local-measures-of-spatial-association-lmsa"><strong>4 Local Measures of Spatial Association (LMSA)</strong></a>
+  <ul>
+  <li><a href="#create-neighbor-list" id="toc-create-neighbor-list" class="nav-link" data-scroll-target="#create-neighbor-list"><strong>4.1 Create neighbor list</strong></a></li>
+  <li><a href="#compute-local-morans-i" id="toc-compute-local-morans-i" class="nav-link" data-scroll-target="#compute-local-morans-i"><strong>4.2 Compute Local Moran’s I</strong></a></li>
+  <li><a href="#getis-ord-gi-statistic" id="toc-getis-ord-gi-statistic" class="nav-link" data-scroll-target="#getis-ord-gi-statistic"><strong>4.3 Getis-Ord Gi* statistic</strong></a></li>
   <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference"><strong>Reference</strong></a></li>
   </ul></li>
   </ul>
@@ -277,7 +290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 14, 2025</p>
+      <p class="date-modified">October 18, 2025</p>
     </div>
   </div>
     
@@ -363,7 +376,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, sf, sfdep, tmap, knitr, rvest, viridis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, sf, sfdep, spdep, tmap, knitr, rvest, viridis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="datasets" class="level2">
@@ -488,8 +501,11 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </section>
-<section id="hexagon-grid-creation" class="level2">
-<h2 class="anchored" data-anchor-id="hexagon-grid-creation"><strong>2.4 Hexagon Grid Creation</strong></h2>
+</section>
+<section id="hexagon-grid-creation-trips-data-preparation" class="level1">
+<h1><strong>3 Hexagon Grid Creation &amp; Trips Data Preparation</strong></h1>
+<section id="creating-hexagon-grid" class="level2">
+<h2 class="anchored" data-anchor-id="creating-hexagon-grid"><strong>3.1 Creating Hexagon Grid</strong></h2>
 <p><strong>Deriving Analytical Hexagon</strong></p>
 <p>A <strong>hexagonal grid</strong> with a 375m cell size (to represent the&nbsp;<a href="https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf">traffic analysis zone (TAZ)</a>) was generated to represent analytical zones across Singapore. It covers the extent of the Master Plan 2019 subzones.</p>
 <div class="cell">
@@ -558,7 +574,7 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </section>
 <section id="trip-generation-data-preparation" class="level2">
-<h2 class="anchored" data-anchor-id="trip-generation-data-preparation"><strong>2.5 Trip Generation Data Preparation</strong></h2>
+<h2 class="anchored" data-anchor-id="trip-generation-data-preparation"><strong>3.2 Trip Generation Data Preparation</strong></h2>
 <p><strong>Cleaning the data</strong></p>
 <p>We will select and rename key fields to focus on <strong>origin bus stop</strong>, <strong>day type</strong>, <strong>hour</strong>, and <strong>total trips</strong>. Converted bus stop codes to factor type for consistent joins and aggregation later.</p>
 <div class="cell">
@@ -733,9 +749,18 @@ Geodetic CRS:  WGS 84</code></pre>
 </table>
 </div>
 </div>
+<p><strong>Aggregating TRIPS based on HEX_ID:</strong> In the code chunk below,&nbsp;<code>group_by()</code>&nbsp;and&nbsp;<code>summarise()</code>&nbsp;is used to aggregate&nbsp;<em>TRIPS</em>&nbsp;by&nbsp;<em>HEX_ID</em>,&nbsp;<em>DAY_TYPE</em>&nbsp;and&nbsp;<em>HOUR_OF_DAY</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>trips <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    HEX_ID,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    DAY_TYPE,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    HOUR_OF_DAY) <span class="sc">%&gt;%</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="trip-aggregation-by-time-period" class="level2">
-<h2 class="anchored" data-anchor-id="trip-aggregation-by-time-period"><strong>2.6 Trip Aggregation by Time Period</strong></h2>
+<h2 class="anchored" data-anchor-id="trip-aggregation-by-time-period"><strong>3.3 Trip Aggregation by Time Period</strong></h2>
 <p>We will refer to the time intervals provided in the table below to compute the passenger trips generated by origin at the hexagon level.</p>
 <table class="caption-top table">
 <thead>
@@ -762,42 +787,42 @@ Geodetic CRS:  WGS 84</code></pre>
 <p><strong>Classify windows &amp; clean hour</strong></p>
 <p>We convert <code>HOUR_OF_DAY</code> to integer and tagged each record into one of the three analysis windows (WKDAY_AM, WKDAY_PM, WKEND_HOL). Records outside the windows are dropped to keep only relevant demand.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>is_weekend_or_holiday <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(x), <span class="st">"WEEKEND|HOLIDAY|PH"</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>trips <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HOUR_OF_DAY =</span> <span class="fu">as.integer</span>(HOUR_OF_DAY))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>is_weekend_or_holiday <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(<span class="fu">str_to_upper</span>(x), <span class="st">"WEEKEND|HOLIDAY|PH"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>trips <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HOUR_OF_DAY =</span> <span class="fu">as.integer</span>(HOUR_OF_DAY))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We will group by <code>HEX_ID</code> and <code>WINDOW</code>, sum <code>TRIPS</code> to convert into each time window.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>trips_window <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">WINDOW =</span> <span class="fu">case_when</span>(</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is_weekend_or_holiday</span>(DAY_TYPE) <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&gt;=</span> <span class="dv">6</span>  <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&lt;=</span> <span class="dv">8</span>  <span class="sc">~</span> <span class="st">"WKDAY_AM"</span>,</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is_weekend_or_holiday</span>(DAY_TYPE) <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&gt;=</span> <span class="dv">17</span> <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&lt;=</span> <span class="dv">19</span> <span class="sc">~</span> <span class="st">"WKDAY_PM"</span>,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is_weekend_or_holiday</span>(DAY_TYPE)  <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&gt;=</span> <span class="dv">11</span> <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&lt;=</span> <span class="dv">19</span> <span class="sc">~</span> <span class="st">"WKEND_HOL"</span>,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(WINDOW))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>trips_window <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">WINDOW =</span> <span class="fu">case_when</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is_weekend_or_holiday</span>(DAY_TYPE) <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&gt;=</span> <span class="dv">6</span>  <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&lt;=</span> <span class="dv">8</span>  <span class="sc">~</span> <span class="st">"WKDAY_AM"</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is_weekend_or_holiday</span>(DAY_TYPE) <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&gt;=</span> <span class="dv">17</span> <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&lt;=</span> <span class="dv">19</span> <span class="sc">~</span> <span class="st">"WKDAY_PM"</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is_weekend_or_holiday</span>(DAY_TYPE)  <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&gt;=</span> <span class="dv">11</span> <span class="sc">&amp;</span> HOUR_OF_DAY <span class="sc">&lt;=</span> <span class="dv">19</span> <span class="sc">~</span> <span class="st">"WKEND_HOL"</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(WINDOW))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Pivot to one row per <code>HEX_ID</code> with columns <code>WKDAY_AM</code>, <code>WKDAY_PM</code>, <code>WKEND_HOL</code>, and computed an overall <code>TRIPS_TOTAL</code> for quick reference. We also verify totals across windows to catch anomalies before mapping or running spatial statistics.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>hex_by_window <span class="ot">&lt;-</span> trips_window <span class="sc">%&gt;%</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HEX_ID, WINDOW) <span class="sc">%&gt;%</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TRIPS, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>hex_trips <span class="ot">&lt;-</span> hex_by_window <span class="sc">%&gt;%</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from  =</span> WINDOW,</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> TRIPS,</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="dv">0</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TRIPS_TOTAL =</span> <span class="fu">rowSums</span>(<span class="fu">across</span>(<span class="fu">c</span>(WKDAY_AM, WKDAY_PM, WKEND_HOL)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>hex_trips <span class="sc">%&gt;%</span></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">c</span>(WKDAY_AM, WKDAY_PM, WKEND_HOL, TRIPS_TOTAL), sum, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>hex_by_window <span class="ot">&lt;-</span> trips_window <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HEX_ID, WINDOW) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TRIPS, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>hex_trips <span class="ot">&lt;-</span> hex_by_window <span class="sc">%&gt;%</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from  =</span> WINDOW,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> TRIPS,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="dv">0</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TRIPS_TOTAL =</span> <span class="fu">rowSums</span>(<span class="fu">across</span>(<span class="fu">c</span>(WKDAY_AM, WKDAY_PM, WKEND_HOL)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>hex_trips <span class="sc">%&gt;%</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">c</span>(WKDAY_AM, WKDAY_PM, WKEND_HOL, TRIPS_TOTAL), sum, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 4
   WKDAY_AM WKDAY_PM WKEND_HOL TRIPS_TOTAL
@@ -807,78 +832,79 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <p>Left-joined the aggregated table back to the <code>hexagon</code> <code>sf</code> layer by <code>HEX_ID</code>, producing <code>hex_trips_sf</code> as the spatial dataset we will use to map and feed into LMSA/EHSA. After that we will save the output into .rds and .csv files for later use.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>hex_trips_sf <span class="ot">&lt;-</span> hexagon <span class="sc">%&gt;%</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(HEX_ID) <span class="sc">%&gt;%</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(hex_trips, <span class="at">by =</span> <span class="st">"HEX_ID"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(WKDAY_AM, WKDAY_PM, WKEND_HOL, TRIPS_TOTAL), <span class="sc">~</span> <span class="fu">replace_na</span>(., <span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>hex_trips_sf <span class="ot">&lt;-</span> hexagon <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(HEX_ID) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(hex_trips, <span class="at">by =</span> <span class="st">"HEX_ID"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(WKDAY_AM, WKDAY_PM, WKEND_HOL, TRIPS_TOTAL), <span class="sc">~</span> <span class="fu">replace_na</span>(., <span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(hex_trips_sf, <span class="st">"data/rds/hex_trips_by_period.rds"</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(<span class="fu">st_drop_geometry</span>(hex_trips_sf), <span class="st">"data/rds/hex_trips_by_period.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(hex_trips_sf, <span class="st">"data/rds/hex_trips_by_period.rds"</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(<span class="fu">st_drop_geometry</span>(hex_trips_sf), <span class="st">"data/rds/hex_trips_by_period.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="visualization-overview" class="level2">
-<h2 class="anchored" data-anchor-id="visualization-overview"><strong>2.7 Visualization &amp; Overview</strong></h2>
+<section id="visualization-exploratory-data-analysis-eda" class="level2">
+<h2 class="anchored" data-anchor-id="visualization-exploratory-data-analysis-eda"><strong>3.4 Visualization &amp; Exploratory Data Analysis (EDA)</strong></h2>
+<p>In this step we will plot a simple heat map by using <code>hex_trips_sf</code> layer and ggplot() to have an overview look on the distribution of bus trips.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>plot_trip_map <span class="ot">&lt;-</span> <span class="cf">function</span>(data, var, title, subtitle) {</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> mpsz, <span class="at">fill =</span> <span class="st">"grey95"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> data, <span class="fu">aes_string</span>(<span class="at">fill =</span> var), <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_viridis</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">trans =</span> <span class="st">"sqrt"</span>, <span class="at">name =</span> <span class="st">"Trips"</span>) <span class="sc">+</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title,</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">subtitle =</span> subtitle,</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">caption =</span> <span class="st">"Source: LTA DataMall (Passenger Volume by OD Bus Stops)"</span>) <span class="sc">+</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">14</span>),</span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.key.width =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">"cm"</span>),</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid =</span> <span class="fu">element_blank</span>()</span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Separate plots</span></span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>p_am <span class="ot">&lt;-</span> <span class="fu">plot_trip_map</span>(</span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  hex_trips_sf, <span class="st">"WKDAY_AM"</span>,</span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weekday Morning Peak (06:00 – 09:00)"</span>,</span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Passenger Trips by Origin (Hexagon Level)"</span></span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>p_pm <span class="ot">&lt;-</span> <span class="fu">plot_trip_map</span>(</span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  hex_trips_sf, <span class="st">"WKDAY_PM"</span>,</span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weekday Afternoon Peak (17:00 – 20:00)"</span>,</span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Passenger Trips by Origin (Hexagon Level)"</span></span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>p_wknd <span class="ot">&lt;-</span> <span class="fu">plot_trip_map</span>(</span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>  hex_trips_sf, <span class="st">"WKEND_HOL"</span>,</span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weekend / Holiday (11:00 – 20:00)"</span>,</span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Passenger Trips by Origin (Hexagon Level)"</span></span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>p_am</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>plot_trip_map <span class="ot">&lt;-</span> <span class="cf">function</span>(data, var, title, subtitle) {</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> mpsz, <span class="at">fill =</span> <span class="st">"grey95"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> data, <span class="fu">aes_string</span>(<span class="at">fill =</span> var), <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_viridis</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">trans =</span> <span class="st">"sqrt"</span>, <span class="at">name =</span> <span class="st">"Trips"</span>) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">subtitle =</span> subtitle,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">caption =</span> <span class="st">"Source: LTA DataMall (Passenger Volume by OD Bus Stops)"</span>) <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.key.width =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">"cm"</span>),</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Separate plots</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>p_am <span class="ot">&lt;-</span> <span class="fu">plot_trip_map</span>(</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>  hex_trips_sf, <span class="st">"WKDAY_AM"</span>,</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weekday Morning Peak (06:00 – 09:00)"</span>,</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Passenger Trips by Origin (Hexagon Level)"</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>p_pm <span class="ot">&lt;-</span> <span class="fu">plot_trip_map</span>(</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>  hex_trips_sf, <span class="st">"WKDAY_PM"</span>,</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weekday Afternoon Peak (17:00 – 20:00)"</span>,</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Passenger Trips by Origin (Hexagon Level)"</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>p_wknd <span class="ot">&lt;-</span> <span class="fu">plot_trip_map</span>(</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>  hex_trips_sf, <span class="st">"WKEND_HOL"</span>,</span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weekend / Holiday (11:00 – 20:00)"</span>,</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Passenger Trips by Origin (Hexagon Level)"</span></span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>p_am</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>p_pm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>p_pm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-22-2.png" class="img-fluid figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>p_wknd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>p_wknd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-21-3.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-22-3.png" class="img-fluid figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
@@ -896,14 +922,358 @@ Obsevation
 <p>The spatial distribution of passenger trips shows clear variations across Singapore.</p>
 <p>During <strong>Weekday morning peak (06:00 - 09:00)</strong>, the most intensive origin activity is concentrated in the <strong>north and northeast residential towns</strong> such as <strong>Woodlands, Yishun, Punggol, and Sengkang</strong>, reflecting outbound commuting flows toward employment zones in the Central Region. Peripheral areas with low residential density (e.g., western industrial estates and southern coastal zones) show minimal activity.</p>
 <p>In the <strong>Weekday afternoon peak (17:00 - 20:00)</strong> period, the high-origin zones shift toward the <strong>Central and Eastern regions</strong>, indicating return trips from workplaces and schools. Moderate activity is also observed in suburban interchange areas (e.g., Tampines, Jurong East), representing redistribution during evening travel peaks.</p>
-<p>On <strong>Weekends/Holidays (11:00 – 20:00)</strong>, trip origins are more <strong>spatially dispersed</strong>, with hotspots emerging near <strong>town centres, shopping districts (e.g., Orchard, Tampines), and recreation hubs (e.g., Sentosa, East Coast Park)</strong>. The distribution suggests leisure-driven and discretionary mobility patterns.</p>
+<p>On <strong>Weekends/Holidays (11:00 - 20:00)</strong>, trip origins are more <strong>spatially dispersed</strong>, with hotspots emerging near <strong>town centres, shopping districts (e.g., Orchard, Tampines), and recreation hubs (e.g., Sentosa, East Coast Park)</strong>. The distribution suggests leisure-driven and discretionary mobility patterns.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="local-measures-of-spatial-association-lmsa" class="level1">
+<h1><strong>4 Local Measures of Spatial Association (LMSA)</strong></h1>
+<section id="create-neighbor-list" class="level2">
+<h2 class="anchored" data-anchor-id="create-neighbor-list"><strong>4.1 Create neighbor list</strong></h2>
+<p>Constructed a <strong>spatial weights matrix</strong> using <strong>queen contiguity</strong>, where hexagons sharing any border or vertex are treated as neighbors. This defines the spatial relationships needed for local autocorrelation analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- helper: build neighbors (only once) ----------</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>build_neighbors <span class="ot">&lt;-</span> <span class="cf">function</span>(sf_obj) {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  nb <span class="ot">&lt;-</span> <span class="fu">poly2nb</span>(sf_obj, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  lw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(nb, <span class="at">style =</span> <span class="st">"W"</span>, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">nb =</span> nb, <span class="at">lw =</span> lw)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>nbw <span class="ot">&lt;-</span> <span class="fu">build_neighbors</span>(hex_trips_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="compute-local-morans-i" class="level2">
+<h2 class="anchored" data-anchor-id="compute-local-morans-i"><strong>4.2 Compute Local Moran’s I</strong></h2>
+<p>We compute <strong>Local Moran’s I</strong> to detect spatial autocorrelation at each hexagon. Significant positive I-values indicate <strong>clusters of similar values</strong> (High-High or Low-Low), while negative I-values indicate <strong>spatial outliers</strong> (High-Low or Low-High).</p>
+<p>(Note: Lines for computing <strong>Getis-Ord Gi*</strong> statistic wasalso added and will be used in later part).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>compute_lmsa <span class="ot">&lt;-</span> <span class="cf">function</span>(sf_obj, var) {</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> sf_obj[[var]] <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  lisa <span class="ot">&lt;-</span> <span class="fu">localmoran</span>(x, nbw<span class="sc">$</span>lw, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> sf_obj <span class="sc">%&gt;%</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">paste0</span>(var, <span class="st">"_I"</span>)  <span class="sc">:</span><span class="er">=</span> lisa[,<span class="dv">1</span>],</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">paste0</span>(var, <span class="st">"_Ip"</span>) <span class="sc">:</span><span class="er">=</span> lisa[,<span class="dv">5</span>],</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">paste0</span>(var, <span class="st">"_CLS"</span>) <span class="sc">:</span><span class="er">=</span> <span class="fu">case_when</span>(</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        lisa[,<span class="dv">5</span>] <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> lisa[,<span class="dv">1</span>] <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> x <span class="sc">&gt;</span> <span class="fu">mean</span>(x, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"High-High"</span>,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        lisa[,<span class="dv">5</span>] <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> lisa[,<span class="dv">1</span>] <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> x <span class="sc">&lt;</span> <span class="fu">mean</span>(x, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Low-Low"</span>,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        lisa[,<span class="dv">5</span>] <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> lisa[,<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> x <span class="sc">&gt;</span> <span class="fu">mean</span>(x, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"High-Low"</span>,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        lisa[,<span class="dv">5</span>] <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> lisa[,<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> x <span class="sc">&lt;</span> <span class="fu">mean</span>(x, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">~</span> <span class="st">"Low-High"</span>,</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Not Significant"</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Gi* (z-score + p-value)</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  giz <span class="ot">&lt;-</span> <span class="fu">local_gstar</span>(x, nbw<span class="sc">$</span>nb, nbw<span class="sc">$</span>lw)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  gip <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(giz), <span class="at">lower.tail =</span> <span class="cn">FALSE</span>) <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> out <span class="sc">%&gt;%</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">paste0</span>(var, <span class="st">"_GiZ"</span>) <span class="sc">:</span><span class="er">=</span> giz,</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">paste0</span>(var, <span class="st">"_GiP"</span>) <span class="sc">:</span><span class="er">=</span> gip,</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!!</span><span class="fu">paste0</span>(var, <span class="st">"_GiSIG"</span>) <span class="sc">:</span><span class="er">=</span> <span class="fu">if_else</span>(gip <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="st">"Significant"</span>, <span class="st">"Not Significant"</span>)</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Map LMSA Results:</strong> We generate <strong>LISA cluster map</strong> showing significant spatial associations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>map_lisa <span class="ot">&lt;-</span> <span class="cf">function</span>(sf_obj, var, title_suffix) {</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  cls_col <span class="ot">&lt;-</span> <span class="fu">paste0</span>(var, <span class="st">"_CLS"</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span> <span class="fu">tm_polygons</span>(<span class="at">col=</span><span class="st">"grey92"</span>, <span class="at">border.col=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(sf_obj) <span class="sc">+</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_fill</span>(cls_col,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"High-High"</span><span class="ot">=</span><span class="st">"#d7191c"</span>, <span class="st">"Low-Low"</span><span class="ot">=</span><span class="st">"#2c7bb6"</span>,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"High-Low"</span><span class="ot">=</span><span class="st">"#fdae61"</span>, <span class="st">"Low-High"</span><span class="ot">=</span><span class="st">"#abd9e9"</span>,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"Not Significant"</span><span class="ot">=</span><span class="st">"#dddddd"</span>),</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">drop.levels =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">"LISA Cluster"</span>) <span class="sc">+</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="fu">paste</span>(<span class="st">"Local Moran’s I –"</span>, title_suffix),</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">legend.outside =</span> <span class="cn">TRUE</span>, <span class="at">frame =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">WKDAY_AM =</span> <span class="st">"WKDAY_AM"</span>,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">WKDAY_PM =</span> <span class="st">"WKDAY_PM"</span>,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">WKEND_HOL =</span> <span class="st">"WKEND_HOL"</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>maps    <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (nm <span class="cf">in</span> <span class="fu">names</span>(vars)) {</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  v <span class="ot">&lt;-</span> vars[[nm]]</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">compute_lmsa</span>(hex_trips_sf, v)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  results[[nm]] <span class="ot">&lt;-</span> res</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save results (RDS+CSV)</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(res, <span class="at">file =</span> <span class="fu">paste0</span>(<span class="st">"data/rds/lmsa_"</span>, v, <span class="st">".rds"</span>))</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>(res) <span class="sc">|&gt;</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(<span class="fu">paste0</span>(<span class="st">"data/rds/lmsa_"</span>, v, <span class="st">".csv"</span>), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>  maps[[nm]] <span class="ot">&lt;-</span> <span class="fu">map_lisa</span>(res, v, <span class="cf">switch</span>(nm,</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">WKDAY_AM  =</span> <span class="st">"Weekday morning peak (06–09)"</span>,</span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">WKDAY_PM  =</span> <span class="st">"Weekday afternoon peak (17–20)"</span>,</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">WKEND_HOL =</span> <span class="st">"Weekend/Holiday (11–20)"</span>))</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>maps<span class="sc">$</span>WKDAY_AM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout_note" title="Weekday Morning Peak (6-9)">
+<p><strong>High-High clusters</strong> concentrated in the <strong>northern and northeastern residential towns</strong> (<strong>Woodlands, Yishun, Sengkang, and Tampines)</strong>, represent strong morning origin activity surrounded by similarly high-demand neighbours. It reflects intense outbound commuting flows toward employment centres in the central region.</p>
+<p>A few <strong>Low-High outliers</strong> appear at subzone boundaries, where individual stops show low trip counts near high-demand areas, likely due to local road or service design factors.</p>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>maps<span class="sc">$</span>WKDAY_PM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Weekday Evening Peak (17–20)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Weekday Evening Peak (17–20)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fewer but distinct <strong>High-High clusters</strong> are visible, mainly around <strong>Tampines, Woodlands, and Jurong East</strong>. These correspond to major <strong>regional centres and interchanges</strong>, where passengers initiate return trips home after work.</p>
+<p>The reduced number of significant clusters compared to the morning suggests that outbound commuting flows in the evening are more dispersed and possibly affected by staggered work hours or multi-stop trips.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>maps<span class="sc">$</span>WKEND_HOL</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Weekend/Holiday (11-20)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Weekend/Holiday (11-20)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The weekend map indicates <strong>High-High clusters</strong> emerging near <strong>Orchard, Downtown Core, and regional malls</strong> such as <strong>Tampines and Jurong East</strong>. Compared to weekdays, hotspots are <strong>more scattered</strong>, covering suburban town centres and recreation areas rather than residential areas. This reflects <strong>non-work trip patterns</strong> where travel originates from diverse activity hubs, confirming the spatial diversification of weekend mobility.</p>
+</div>
+</div>
+</section>
+<section id="getis-ord-gi-statistic" class="level2">
+<h2 class="anchored" data-anchor-id="getis-ord-gi-statistic"><strong>4.3 Getis-Ord Gi* statistic</strong></h2>
+<p><strong>Getis-Ord Gi*</strong> statistic will beused to locate <strong>intensity-based hotspots and coldspots</strong>, complementing Local Moran’s I. Gi* focuses purely on magnitude clustering rather than similarity of values.</p>
+<p>We will calculate <strong>Gi*</strong> <em>z-scores</em> (<code>GiZ_</code>) and corresponding <em>p-values</em> (<code>GiP_</code>) for each period.</p>
+<ul>
+<li><p><strong>High positive z-scores</strong> = strong hotspots (high values surrounded by high values)</p></li>
+<li><p><strong>Low negative z-scores</strong> = strong coldspots (low surrounded by low)</p></li>
+<li><p><strong>p-values &lt; 0.05</strong> = statistically significant clustering</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">WKDAY_AM =</span> <span class="st">"WKDAY_AM"</span>,</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">WKDAY_PM =</span> <span class="st">"WKDAY_PM"</span>,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">WKEND_HOL =</span> <span class="st">"WKEND_HOL"</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>gi_results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (nm <span class="cf">in</span> <span class="fu">names</span>(vars)) {</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  v   <span class="ot">&lt;-</span> vars[[nm]]</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">compute_lmsa</span>(hex_trips_sf, v)  <span class="co"># this already adds GiZ, GiP, GiSIG from above</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  gi_results[[nm]] <span class="ot">&lt;-</span> res</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#save results for later use</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(res, <span class="fu">paste0</span>(<span class="st">"data/rds/gistar_"</span>, v, <span class="st">".rds"</span>))</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>(res) <span class="sc">|&gt;</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(<span class="fu">paste0</span>(<span class="st">"data/rds/gistar_"</span>, v, <span class="st">".csv"</span>), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>tmap() will be used to plot choropleth map for Gi* z-score &amp; p-value results:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Z-score choropleth</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>map_giz <span class="ot">&lt;-</span> <span class="cf">function</span>(sf_obj, var, title_suffix) {</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  zcol <span class="ot">&lt;-</span> <span class="fu">paste0</span>(var, <span class="st">"_GiZ"</span>)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span> <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"grey92"</span>, <span class="at">border.col =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_shape</span>(sf_obj) <span class="sc">+</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_fill</span>(zcol, <span class="at">palette =</span> <span class="st">"-RdBu"</span>, <span class="at">style =</span> <span class="st">"pretty"</span>,</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">"Gi* Z-score"</span>) <span class="sc">+</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="fu">paste</span>(<span class="st">"Getis–Ord Gi* Z-score –"</span>, title_suffix),</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">legend.outside =</span> <span class="cn">TRUE</span>, <span class="at">frame =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Significance (hot/cold vs not sig)</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>map_gisig <span class="ot">&lt;-</span> <span class="cf">function</span>(sf_obj, var, title_suffix) {</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  sgcol <span class="ot">&lt;-</span> <span class="fu">paste0</span>(var, <span class="st">"_GiSIG"</span>)    </span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span> <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"grey92"</span>, <span class="at">border.col =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_shape</span>(sf_obj) <span class="sc">+</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_fill</span>(</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>      sgcol,</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"Significant"</span>   <span class="ot">=</span> <span class="st">"#d7191c"</span>,   </span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Not Significant"</span> <span class="ot">=</span> <span class="st">"grey90"</span>),</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">"Gi* Significance"</span>,</span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">drop.levels =</span> <span class="cn">FALSE</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="fu">paste</span>(<span class="st">"Getis–Ord Gi* Significance –"</span>, title_suffix),</span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>              <span class="at">legend.outside =</span> <span class="cn">TRUE</span>, <span class="at">frame =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>gi_maps_z   <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>gi_maps_sig <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (nm <span class="cf">in</span> <span class="fu">names</span>(gi_results)) {</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  v   <span class="ot">&lt;-</span> vars[[nm]]</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> gi_results[[nm]]</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  label <span class="ot">&lt;-</span> <span class="cf">switch</span>(nm,</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">WKDAY_AM  =</span> <span class="st">"Weekday morning peak (06–09)"</span>,</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">WKDAY_PM  =</span> <span class="st">"Weekday afternoon peak (17–20)"</span>,</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">WKEND_HOL =</span> <span class="st">"Weekend/Holiday (11–20)"</span>)</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  gi_maps_z[[nm]]   <span class="ot">&lt;-</span> <span class="fu">map_giz</span>(res, v, label)</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  gi_maps_sig[[nm]] <span class="ot">&lt;-</span> <span class="fu">map_gisig</span>(res, v, label)</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>gi_maps_z<span class="sc">$</span>WKDAY_AM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>gi_maps_sig<span class="sc">$</span>WKDAY_AM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-33-2.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Weekday Morning Peak (6-9)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Weekday Morning Peak (6-9)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Significant <strong>hotspots (high Gi* z-scores)</strong> are concentrated within the <strong>northern and northeastern housing estates (Woodlands, Yishun, Sengkang, Punggol, Tampines)</strong> and parts of <strong>Jurong West</strong>. It confirms strong morning departure activity from residential areas. In contrast, areas with <strong>low or negative Gi* scores</strong> are scattered across <strong>industrial and low-density zones</strong>, including <strong>Tuas, Seletar, and Changi</strong>, where origin trip intensity remains consistently weak.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>gi_maps_z<span class="sc">$</span>WKDAY_PM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>gi_maps_sig<span class="sc">$</span>WKDAY_PM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-34-2.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Weekday Afternoon Peak (17-20)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Weekday Afternoon Peak (17-20)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Clusters locate around <strong>Tampines, Woodlands, and Jurong East</strong> - key regional centres and transport interchanges. These areas exhibit high Gi* z-scores, reflecting strong evening origin intensity as commuters begin their return journeys.</p>
+<p>Hotspots are generally fewer and more dispersed compared to the morning peak, again suggesting that evening travel patterns are <strong>less spatially concentrated</strong> and influenced by <strong>diverse trip purposes</strong> such as after-work activities or staggered work schedules.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>gi_maps_z<span class="sc">$</span>WKEND_HOL</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>gi_maps_sig<span class="sc">$</span>WKEND_HOL</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex2_files/figure-html/unnamed-chunk-35-2.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Weekend/Holiday (11-20)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Weekend/Holiday (11-20)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Hotspot clusters</strong> differ from weekday patterns and are concentrated around <strong>Orchard, Marina Bay, Jurong East, Tampines, and Woodlands</strong>, which correspond to major retail, leisure, and town-centre hubs. These areas also exhibit high Gi* z-scores, indicating intense passenger trip origins surrounded by similarly high-value neighbours.</p>
+<p>Compared to weekday peaks, weekend hotspots are <strong>more dispersed and spatially diverse</strong>, extending into suburban and coastal areas such as <strong>Pasir Ris</strong> or <strong>East Coast</strong>.</p>
+<p>Cold or non-significant areas remain dominant in industrial and sparsely populated regions, consistent with reduced activity in those zones.</p>
+</div>
+</div>
+<p>Overall, both <strong>Local Moran’s I</strong> and <strong>Getis–Ord Gi*</strong> analyses consistently reveal that Singapore’s bus trip generation is <strong>spatially structured rather than random</strong>, similar to the patterns observed in the earlier exploratory maps.</p>
+<p>During the <strong>weekday morning peak</strong>, strong <strong>High–High clusters and Gi* hotspots</strong> emerged in northern and northeastern residential towns such as <strong>Woodlands, Yishun, Sengkang, and Tampines</strong>, confirming these estates as dominant origin zones for outbound commuting.</p>
+<p>In the <strong>evening peak</strong>, clustering intensity declined and became <strong>more scattered</strong>, with hotspots shifting toward <strong>regional centres and interchange hubs</strong> (e.g., Tampines, Jurong East), reflecting staggered travel behaviour.</p>
+<p>On <strong>weekends and holidays</strong>, both LISA and Gi* show <strong>wider, more dispersed hotspots</strong> concentrated around <strong>Orchard, Marina Bay, Jurong East, and Pasir Ris</strong>, aligning with leisure and retail mobility patterns rather than work commutes.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Notes">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Notes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Compared with the LISA results, the Gi* approach smooths local variation and better reveals <strong>continuous corridors of concentrated demand</strong>, particularly along Singapore’s key residential employment axes in the <strong>north-to-central</strong> and <strong>east-to-central</strong> directions.</p>
 </div>
 </div>
 </section>
 <section id="reference" class="level2">
 <h2 class="anchored" data-anchor-id="reference"><strong>Reference</strong></h2>
 <ul>
-<li>Kam, T. S. (2024). <em>Emerging Hot Spot Analysis.</em><a href="https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa" class="uri">https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa</a></li>
+<li>Kam, T. S. (2024). <em>Emerging Hot Spot Analysis.</em> <a href="https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa" class="uri">https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa</a></li>
 </ul>
 
 
