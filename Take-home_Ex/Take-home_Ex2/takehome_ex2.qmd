@@ -48,15 +48,15 @@ In this exercise, we will use following packages:
 | [**tidyverse**](https://www.tidyverse.org/) | Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data. |
 | [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API. |
 | [**sfdep**](https://cran.r-project.org/web/packages/sfdep/index.html) | An interface to 'spdep' to integrate with 'sf' objects and the 'tidyverse'. |
+| [**spdep**](https://cran.r-project.org/web/packages/spdep/index.html) | A collection of functions to create spatial weights matrix objects from polygon 'contiguities' |
 | [**knitr**](https://cran.r-project.org/web/packages/knitr/index.html) | Provides a general-purpose tool for dynamic report generation in R using Literate Programming techniques. |
 | [**rvest**](https://cran.r-project.org/web/packages/rvest/index.html) | Wrappers around the 'xml2' and 'httr' packages to make it easy to download, then manipulate, HTML and XML. |
-| [**corrplot**](https://cran.r-project.org/web/packages/corrplot/) | Provides functions for visualizing correlation matrices. |
-| [**heatmaply**](https://cran.r-project.org/web/packages/heatmaply/) | Provides an easy-to-use interface for creating interactive heatmaps. |
 | [**ggplot2**](https://ggplot2.tidyverse.org/) | Provides graphics plots and mappings. |
 | [**viridis**](https://cran.r-project.org/web/packages/viridis/index.html) | Color maps designed to improve graph readability. |
+| [**Kendall**](https://cran.r-project.org/web/packages/Kendall/index.html) | Kendall Rank Correlation and Mann-Kendall Trend Test. |
 
 ```{r}
-pacman::p_load(tidyverse, sf, sfdep, spdep, tmap, knitr, rvest, viridis, plotly, Kendall)
+pacman::p_load(tidyverse, sf, sfdep, spdep, tmap, knitr, rvest, ggplot2, viridis, Kendall)
 ```
 
 ## **2.2 Datasets**
@@ -324,7 +324,6 @@ plot_trip_map <- function(data, var, title, subtitle) {
     )
 }
 
-# Separate plots
 p_am <- plot_trip_map(
   hex_trips_sf, "WKDAY_AM",
   "Weekday Morning Peak (06:00 – 09:00)",
@@ -398,7 +397,7 @@ compute_lmsa <- function(sf_obj, var) {
       )
     )
 
-  #Gi* (z-score + p-value)
+#Gi* (z-score + p-value)
   giz <- local_gstar(x, nbw$nb, nbw$lw)
   gip <- pnorm(abs(giz), lower.tail = FALSE) * 2
 
@@ -461,7 +460,7 @@ for (nm in names(vars)) {
 maps$WKDAY_AM
 ```
 
-::: {.callout_note title="Weekday Morning Peak (6-9)"}
+::: {.callout-note title="Weekday morning peak (6-9)"}
 **High-High clusters** concentrated in the **northern and northeastern residential towns** (**Woodlands, Yishun, Sengkang, and Tampines)**, represent strong morning origin activity surrounded by similarly high-demand neighbours. It reflects intense outbound commuting flows toward employment centres in the central region.
 
 A few **Low-High outliers** appear at subzone boundaries, where individual stops show low trip counts near high-demand areas, likely due to local road or service design factors.
@@ -508,7 +507,6 @@ for (nm in names(vars)) {
   res <- compute_lmsa(hex_trips_sf, v)  # this already adds GiZ, GiP, GiSIG from above
   gi_results[[nm]] <- res
 
-  #save results for later use
   saveRDS(res, paste0("data/rds/gistar_", v, ".rds"))
   st_drop_geometry(res) |>
     write.csv(paste0("data/rds/gistar_", v, ".csv"), row.names = FALSE)
@@ -518,7 +516,7 @@ for (nm in names(vars)) {
 tmap() will be used to plot choropleth map for Gi\* z-score & p-value results:
 
 ```{r}
-# Z-score choropleth
+#Z-score choropleth
 map_giz <- function(sf_obj, var, title_suffix) {
   zcol <- paste0(var, "_GiZ")
   tm_shape(mpsz) + tm_polygons(col = "grey92", border.col = "white") +
@@ -530,7 +528,7 @@ map_giz <- function(sf_obj, var, title_suffix) {
               legend.outside = TRUE, frame = FALSE)
 }
 
-# Significance (hot/cold vs not sig)
+#(hot/cold vs not sig)
 map_gisig <- function(sf_obj, var, title_suffix) {
   sgcol <- paste0(var, "_GiSIG")    
   tm_shape(mpsz) + tm_polygons(col = "grey92", border.col = "white") +
@@ -646,6 +644,17 @@ is_spacetime_cube(AM_cube)
 We will compute Gi\* statistic within morning peak period and add-in another column in the table.
 
 ```{r}
+nb <- spdep::poly2nb(hexagon, queen = TRUE)
+lw <- spdep::nb2listw(nb, style = "W", zero.policy = TRUE)
+
+safe_kendall <- function(t, z){
+  if (length(z) < 3 || dplyr::n_distinct(z) < 2 || var(z) == 0) return(c(tau=NA_real_, p=NA_real_))
+  kt <- suppressWarnings(cor.test(t, z, method="kendall", exact = FALSE))
+  c(tau = unname(kt$estimate), p = kt$p.value)
+}
+```
+
+```{r}
 AM_gi <- AM_cube %>%
   as_tibble() %>%                    
   arrange(HOUR_OF_DAY) %>%
@@ -660,17 +669,6 @@ AM_gi <- AM_cube %>%
 ## **5.2 Temporal Trend Detection with Mann–Kendall Test**
 
 The **Mann–Kendall test** identifies monotonic trends in the Gi\* z-scores for each hexagon over time slices. We can now apply the Mann–Kendall test to the Gi\* z-scores calculated earlier for each hexagon to detect **increasing (emerging)** or **decreasing (diminishing)** hotspot trends.
-
-```{r}
-nb <- spdep::poly2nb(hexagon, queen = TRUE)
-lw <- spdep::nb2listw(nb, style = "W", zero.policy = TRUE)
-
-safe_kendall <- function(t, z){
-  if (length(z) < 3 || dplyr::n_distinct(z) < 2 || var(z) == 0) return(c(tau=NA_real_, p=NA_real_))
-  kt <- suppressWarnings(cor.test(t, z, method="kendall", exact = FALSE))
-  c(tau = unname(kt$estimate), p = kt$p.value)
-}
-```
 
 ```{r}
 EHSA_AM <- AM_gi %>%
@@ -710,7 +708,7 @@ tm_shape(EHSA_AM_sf) +
           drop.levels = FALSE,
           title = "EHSA Trend (AM by Hour)") +
   tm_borders(alpha=.25) +
-  tm_layout(main.title="Emerging Hot Spots — Weekday morning peak (06–09)",
+  tm_layout(main.title="Emerging Hot Spots - Weekday morning peak (06-09)",
             legend.outside=TRUE, frame=FALSE)
 ```
 
@@ -719,6 +717,8 @@ During the **weekday morning peak**, strong **emerging/intensifying hotspots** a
 :::
 
 Next, we will repeat the steps for weekday evening peak and weekend/holiday periods:
+
+**Weekday evening peak**
 
 ```{r}
 hours_pm <- 17:20
@@ -729,17 +729,26 @@ pm_st <- trips %>%
   group_by(HEX_ID, HOUR_OF_DAY) %>%
   summarise(TRIPS = sum(TRIPS, na.rm = TRUE), .groups = "drop")
 
-pm_st <- expand_grid(HEX_ID = st_drop_geometry(hexagon)$HEX_ID,
-                     HOUR_OF_DAY = hours_pm) %>%
+pm_st <- expand_grid(HEX_ID = all_hex$HEX_ID, HOUR_OF_DAY = hours_pm) %>%
   left_join(pm_st, by = c("HEX_ID","HOUR_OF_DAY")) %>%
-  mutate(TRIPS = replace_na(TRIPS, 0))
+  mutate(TRIPS = replace_na(TRIPS, 0L))
 
+PM_cube <- spacetime(pm_st, hexagon, .loc_col = "HEX_ID", .time_col = "HOUR_OF_DAY")
+```
+
+```{r}
 gi_pm <- pm_st %>%
+  as_tibble() %>%
   arrange(HOUR_OF_DAY) %>%
   group_by(HOUR_OF_DAY) %>%
-  group_modify(~{ .x$GiZ <- sfdep::local_gstar(.x$TRIPS, nb, lw); .x }) %>%
+  group_modify(~{ 
+    .x$GiZ <- sfdep::local_gstar(.x$TRIPS, nb, lw); 
+    .x 
+  }) %>%
   ungroup()
+```
 
+```{r}
 EHSA_PM <- gi_pm %>%
   arrange(HEX_ID, HOUR_OF_DAY) %>%
   group_by(HEX_ID) %>%
@@ -750,7 +759,9 @@ EHSA_PM <- gi_pm %>%
   mutate(EHSA = case_when(!is.na(p) & p < 0.05 & tau > 0 ~ "Emerging / Intensifying Hot Spot",
                           !is.na(p) & p < 0.05 & tau < 0 ~ "Diminishing Hot Spot",
                           TRUE ~ "Not Significant"))
+```
 
+```{r}
 EHSA_PM_sf <- hexagon %>% left_join(EHSA_PM, by = "HEX_ID")
 
 tmap_mode("plot")
@@ -762,12 +773,14 @@ tm_shape(EHSA_PM_sf) +
                       "Not Significant"="#dddddd"),
           drop.levels = FALSE, title = "EHSA Trend") +
   tm_borders(alpha=.25) +
-  tm_layout(main.title="EHSA — Weekday afternoon peak (17–20)", legend.outside=TRUE, frame=FALSE)
+  tm_layout(main.title="EHSA - Weekday afternoon peak (17-20)", legend.outside=TRUE, frame=FALSE)
 ```
 
 ::: {.callout-note title="Weekday PM"}
 For **weekday evening peak**, intensifying hotspots spread along the western and eastern commuter corridors (e.g., **Jurong West, Tampines, Pasir Ris**), consistent with return-trip movements, while diminishing clusters occur near central areas as travel demand tapers off.
 :::
+
+**Weekend/Holiday**
 
 ```{r}
 hours_wknd <- 11:20
@@ -778,17 +791,26 @@ wknd_st <- trips %>%
   group_by(HEX_ID, HOUR_OF_DAY) %>%
   summarise(TRIPS = sum(TRIPS, na.rm = TRUE), .groups = "drop")
 
-wknd_st <- expand_grid(HEX_ID = st_drop_geometry(hexagon)$HEX_ID,
-                       HOUR_OF_DAY = hours_wknd) %>%
+wknd_st <- expand_grid(HEX_ID = all_hex$HEX_ID, HOUR_OF_DAY = hours_wknd) %>%
   left_join(wknd_st, by = c("HEX_ID","HOUR_OF_DAY")) %>%
-  mutate(TRIPS = replace_na(TRIPS, 0))
+  mutate(TRIPS = replace_na(TRIPS, 0L))
 
+wknd_cube <- spacetime(wknd_st, hexagon, .loc_col = "HEX_ID", .time_col = "HOUR_OF_DAY")
+```
+
+```{r}
 gi_wknd <- wknd_st %>%
+  as_tibble() %>%
   arrange(HOUR_OF_DAY) %>%
   group_by(HOUR_OF_DAY) %>%
-  group_modify(~{ .x$GiZ <- sfdep::local_gstar(.x$TRIPS, nb, lw); .x }) %>%
+  group_modify(~{ 
+    .x$GiZ <- sfdep::local_gstar(.x$TRIPS, nb, lw) 
+    .x 
+  }) %>%
   ungroup()
+```
 
+```{r}
 EHSA_WKND <- gi_wknd %>%
   arrange(HEX_ID, HOUR_OF_DAY) %>%
   group_by(HEX_ID) %>%
@@ -799,9 +821,12 @@ EHSA_WKND <- gi_wknd %>%
   mutate(EHSA = case_when(!is.na(p) & p < 0.05 & tau > 0 ~ "Emerging / Intensifying Hot Spot",
                           !is.na(p) & p < 0.05 & tau < 0 ~ "Diminishing Hot Spot",
                           TRUE ~ "Not Significant"))
+```
 
+```{r}
 EHSA_WKND_sf <- hexagon %>% left_join(EHSA_WKND, by = "HEX_ID")
 
+tmap_mode("plot")
 tm_shape(mpsz) + tm_polygons(col="grey92", border.col="white") +
 tm_shape(EHSA_WKND_sf) +
   tm_fill("EHSA",
@@ -810,7 +835,7 @@ tm_shape(EHSA_WKND_sf) +
                       "Not Significant"="#dddddd"),
           drop.levels = FALSE, title = "EHSA Trend") +
   tm_borders(alpha=.25) +
-  tm_layout(main.title="EHSA — Weekend/Holiday (11–20)", legend.outside=TRUE, frame=FALSE)
+  tm_layout(main.title="EHSA - Weekend/Holiday (11-20)", legend.outside=TRUE, frame=FALSE)
 ```
 
 ::: {.callout-note title="Weekend/Holiday (11-20)"}
@@ -847,12 +872,12 @@ From a planning perspective, intensifying hotspots during weekday peaks indicate
 
 ## **6.3 Limitations and Future Work**
 
-While the analyses provide strong spatial-temporal insights, the EHSA results are constrained by the **limited number of hourly time slices** in AM and PM windows, which reduce statistical sensitivity in trend detection. Future studies could incorporate finer temporal granularity **(e.g., 15-minute intervals)** or **multi-day data** to improve the robustness of temporal trend classification.\
-Integrating **socio-demographic or land-use intensity data** could also enhance interpretation by linking spatial clusters to underlying urban functions.
+While the analyses provide strong spatial-temporal insights, the EHSA results are constrained by the **limited number of hourly time slices** in AM and PM windows, which reduce statistical sensitivity in trend detection. Future studies could incorporate finer temporal granularity(e.g., 15-minute intervals) or multi-day data to improve the robustness of temporal trend classification. Integrating **social** or **land-use data** could also enhance interpretation by linking spatial clusters to underlying urban functions.
 
-Finally, applying similar analyses to **alighting trips** or **intermodal transfers** would provide a more comprehensive understanding of Singapore’s travel behaviour and transport network performance.
-
-## **Reference**
+# **7 Reference**
 
 -   Kam, T. S. (2024). *Emerging Hot Spot Analysis.* <https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa>
 -   Kam, T. S. (2024). *Local Measures of Spatial Autocorrelation.* <https://r4gdsa.netlify.app/chap10>
+-   Land Transport Authority (LTA). (2019). *Land Transport Master Plan 2040: Bringing Singapore Together.* <https://www.lta.gov.sg/content/ltagov/en/who_we_are/our_work/land_transport_master_plan_2040.html>
+-   Yuen, B. (2011). *Urban planning in Southeast Asia: Perspective from Singapore.* <https://www.researchgate.net/publication/261781057_Centenary_paper_Urban_planning_in_Southeast_Asia_Perspective_from_Singapore>
+-   Diao, M. (2016). *Towards sustainable urban transport in Singapore: Policy instruments and mobility trends.* <https://www.researchgate.net/publication/325289645_Towards_sustainable_urban_transport_in_Singapore_Policy_instruments_and_mobility_trends>

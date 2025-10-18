@@ -46,6 +46,9 @@ website:
         menu: 
           - href: Take-home_Ex/Take-home_Ex1/takehome_ex1.html
             text: Take-home Exercise 1
+          - href: Take-home_Ex/Take-home_Ex2/takehome_ex2.html
+            text: Take-home Exercise 2
+          
 format:
   html:
     theme:
