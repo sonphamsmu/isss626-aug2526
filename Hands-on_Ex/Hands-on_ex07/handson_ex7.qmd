@@ -86,6 +86,7 @@ The code chunk below updates the newly imported *mpsz* with the correct ESPG cod
 
 ```{r}
 mpsz_svy21 <- st_transform(mpsz, 3414)
+write_rds(mpsz, "data/rds/mpsz.rds")
 ```
 
 ## **5 Aspatial Data Wrangling**
@@ -111,6 +112,7 @@ condo_resale.sf <- st_as_sf(condo_resale,
 
 ```{r}
 head(condo_resale.sf)
+write_rds(condo_resale.sf, "data/rds/condo_resale_sf.rds")
 ```
 
 ## **6 Exploratory Data Analysis (EDA)**

@@ -1,0 +1,131 @@
+---
+title: "Inclass Exercise 8: Data Preparation for Hands-on Exercise 8"
+author: "PHAM Hung Son"
+date: "Oct 25, 2025"
+date-modified: "last-modified"
+format: 
+  html:
+    toc-depth: 4
+    toc-expand: true
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+```{r}
+pacman::p_load(httr, tidyverse, sf, tmap, jsonlite, progress, spdep, GWmodel, SpatialML, rsample, Metrics, knitr, kableExtra, spatialRF, randomForestExplainer)
+```
+
+```{r, echo=FALSE}
+HDBresale_sf <- read_rds("data/rds/HDBresale_sf.rds")
+HDBresale <- read_csv("data/rds/HDBresale_updated.csv")
+```
+
+Geocoding HDB resale data
+
+```{r, eval=FALSE}
+HDBresale <- read_csv("data/aspatial/HDBresale.csv") %>%
+  filter(flat_type == "4 ROOM") %>%
+  filter(month >= "2025-09" & month < "2025-10")
+```
+
+```{r, eval=FALSE}
+HDBresale$street_name <- gsub (
+  "ST\\.", "SAINT",
+  HDBresale$street_name
+)
+```
+
+```{r, eval=FALSE}
+#|eval: FALSE
+geocode <- function(block, streetname) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block, streetname, sep = " ")
+  query <- list("searchVal" = address,
+                "returnGeom"= "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  res <- GET(base_url, query = query)
+  restext <- content(res, as="text")
+  
+  output <- fromJSON(restext) %>%
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+  
+  return(output)
+}
+```
+
+```{r, eval=FALSE}
+#|eval: false
+HDBresale$LATITUDE <- 0
+HDBresale$LONGITUDE <- 0
+
+for(i in 1:nrow(HDBresale)){
+  temp_output <- geocode(HDBresale[i, 4], HDBresale[i, 5])
+  
+  HDBresale$LATITUDE[i] <- temp_output$results.LATITUDE
+  HDBresale$LONGITUDE[i] <- temp_output$results.LONGITUDE
+  
+}
+```
+
+```{r, eval=FALSE}
+HDBresale_sf <- HDBresale %>% 
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326) %>% 
+  st_transform(crs = 3414)
+```
+
+```{r}
+preschool = st_read("data/geospatial/PreSchoolsLocation.kml") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+within_350m <- st_is_within_distance(
+  HDBresale_sf, preschool, dist = 350)
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(prischool_350m = map_int(within_350m, length))
+```
+
+```{r, eval=FALSE}
+##save!!!
+saveRDS(HDBresale_sf, "data/rds/HDBresale_sf.rds")
+write_csv(HDBresale, "data/rds/HDBresale_updated.csv")
+```
+
+```{r}
+mdata <- read_rds("data/rawdata/mdata.rds")
+```
+
+```{r}
+set.seed(1234)
+HDB_sample <- mdata %>%
+  sample_n(1500)
+```
+
+```{r}
+ovarlapping_points <- HDB_sample %>%
+  mutate(overlap = lengths(st_equals(., .)) > 1)
+```
+
+```{r}
+HDB_sample <- HDB_sample %>%
+  st_jitter(amount = 1)
+```
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(HDB_sample,
+                              prop = 6.67/10,)
+train_data <- training(resale_split)
+test_data <- testing(resale_split)
+```
+
+```{r, eval=FALSE}
+bw_adaptive
+```
