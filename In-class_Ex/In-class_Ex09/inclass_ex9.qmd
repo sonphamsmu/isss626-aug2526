@@ -1,0 +1,247 @@
+---
+title: "In-class Exercise 9: Modelling Geographical Accessibility"
+author: "PHAM Hung Son"
+date: "Nov 08, 2025"
+date-modified: "last-modified"
+format: 
+  html:
+    toc-depth: 4
+    toc-expand: true
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+## **Getting Started**
+
+```{r}
+pacman::p_load(tmap, SpatialAcc, sf, 
+               ggstatsplot, reshape2,
+               tidyverse)
+```
+
+## **Geospatial Data Wrangling**
+
+### **Importing geospatial data**
+
+```{r}
+mpsz <- st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_NO_SEA_PL")
+```
+
+```{r}
+hexagons <- st_read(dsn = "data/geospatial", layer = "hexagons") 
+```
+
+```{r}
+eldercare <- st_read(dsn = "data/geospatial", layer = "ELDERCARE") 
+```
+
+### **Updating CRS information**
+
+```{r}
+mpsz <- st_transform(mpsz, 3414)
+eldercare <- st_transform(eldercare, 3414)
+hexagons <- st_transform(hexagons, 3414)
+```
+
+### **Cleaning and updating attribute fields of the geospatial data**
+
+```{r}
+eldercare <- eldercare %>%
+  select(fid, ADDRESSPOS) %>%
+  mutate(capacity = 100)
+```
+
+```{r}
+hexagons <- hexagons %>%
+  select(fid) %>%
+  mutate(demand = 100)
+```
+
+## **Apsaital Data Handling and Wrangling**
+
+### **Importing Distance Matrix**
+
+```{r}
+ODMatrix <- read_csv("data/aspatial/OD_Matrix.csv", skip = 0)
+```
+
+### **Tidying distance matrix**
+
+```{r}
+distmat <- ODMatrix %>%
+  select(origin_id, destination_id, total_cost) %>%
+  spread(destination_id, total_cost)%>%
+  select(c(-c('origin_id')))
+```
+
+```{r}
+distmat_km <- as.matrix(distmat/1000)
+```
+
+## **Modelling and Visualising Accessibility using Hansen Method**
+
+### **Computing Hansen’s accessibility**
+
+```{r}
+acc_Hansen <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 0.5, 
+                            family = "Hansen"))
+
+colnames(acc_Hansen) <- "accHansen"
+acc_Hansen <- as_tibble(acc_Hansen)
+hexagon_Hansen <- bind_cols(hexagons, acc_Hansen)
+```
+
+```{r}
+acc_Hansen1 <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 1, 
+                            family = "Hansen"))
+
+colnames(acc_Hansen1) <- "accHansen1"
+acc_Hansen1 <- as_tibble(acc_Hansen1)
+hexagon_Hansen1 <- bind_cols(hexagons, acc_Hansen1)
+```
+
+```{r}
+acc_Hansen15 <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 1.5, 
+                            family = "Hansen"))
+
+colnames(acc_Hansen15) <- "accHansen15"
+acc_Hansen15 <- as_tibble(acc_Hansen15)
+hexagon_Hansen15 <- bind_cols(hexagons, acc_Hansen15)
+```
+
+```{r}
+acc_Hansen20 <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 2.0, 
+                            family = "Hansen"))
+
+colnames(acc_Hansen20) <- "accHansen20"
+acc_Hansen20 <- as_tibble(acc_Hansen20)
+hexagon_Hansen20 <- bind_cols(hexagons, acc_Hansen20)
+```
+
+```{r}
+acc_Hansen25 <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 2.5, 
+                            family = "Hansen"))
+
+colnames(acc_Hansen25) <- "accHansen25"
+acc_Hansen25 <- as_tibble(acc_Hansen25)
+hexagon_Hansen25 <- bind_cols(hexagons, acc_Hansen25)
+```
+
+### **Visualising Hansen’s accessibility**
+
+**Extracting map extend**
+
+```{r}
+mapex <- st_bbox(hexagons)
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(hexagon_Hansen,
+         bbox = mapex) + 
+  tm_polygons(fill = "accHansen", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 10,
+                values = "brewer.blues")) +
+tm_shape(eldercare) +
+  tm_dots(size = 0.3,
+          fill = "red",
+          col = "black") +
+  tm_title("Hansen 0.5") +
+  tm_layout(frame = TRUE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha = 0.2)
+
+tm_shape(hexagon_Hansen1,
+         bbox = mapex) + 
+  tm_polygons(fill = "accHansen1", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 10,
+                values = "brewer.blues")) +
+tm_shape(eldercare) +
+  tm_dots(size = 0.3,
+          fill = "red",
+          col = "black") +
+  tm_title("Hansen 1.0") +
+  tm_layout(frame = TRUE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha = 0.2)
+
+tm_shape(hexagon_Hansen15,
+         bbox = mapex) + 
+  tm_polygons(fill = "accHansen15", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 10,
+                values = "brewer.blues")) +
+tm_shape(eldercare) +
+  tm_dots(size = 0.3,
+          fill = "red",
+          col = "black") +
+  tm_title("Hansen 1.5") +
+  tm_layout(frame = TRUE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha = 0.2)
+
+tm_shape(hexagon_Hansen20,
+         bbox = mapex) + 
+  tm_polygons(fill = "accHansen20", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 10,
+                values = "brewer.blues")) +
+tm_shape(eldercare) +
+  tm_dots(size = 0.3,
+          fill = "red",
+          col = "black") +
+  tm_title("Hansen 2.0") +
+  tm_layout(frame = TRUE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha = 0.2)
+
+tm_shape(hexagon_Hansen25,
+         bbox = mapex) + 
+  tm_polygons(fill = "accHansen25", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 10,
+                values = "brewer.blues")) +
+tm_shape(eldercare) +
+  tm_dots(size = 0.3,
+          fill = "red",
+          col = "black") +
+  tm_title("Hansen 2.5") +
+  tm_layout(frame = TRUE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha = 0.2)
+```
