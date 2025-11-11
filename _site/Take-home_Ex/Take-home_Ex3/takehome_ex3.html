@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="PHAM Hung Son">
-<meta name="dcterms.date" content="2025-10-28">
+<meta name="dcterms.date" content="2025-11-05">
 
 <title>Take-home Exercise 3: Modelling HDB Resale Prices with Geographically Weighted Methods – isss626-aug2526</title>
 <style>
@@ -221,6 +221,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex2/takehome_ex2.html">
  <span class="dropdown-text">Take-home Exercise 2</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex3/takehome_ex3.html">
+ <span class="dropdown-text">Take-home Exercise 3</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -249,17 +253,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><strong>1 Introduction</strong></a>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">1 Introduction</a>
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">1.1 Overview</a></li>
   <li><a href="#objective" id="toc-objective" class="nav-link" data-scroll-target="#objective">1.2 Objective</a></li>
   </ul></li>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><strong>2. Getting Started</strong></a>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">2 Getting Started</a>
   <ul>
-  <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages"><strong>2.1 The Packages</strong></a></li>
-  <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets"><strong>2.2 Datasets</strong></a></li>
-  <li><a href="#importing-datasets-to-r-environment" id="toc-importing-datasets-to-r-environment" class="nav-link" data-scroll-target="#importing-datasets-to-r-environment"><strong>2.3 Importing datasets to R environment</strong></a></li>
+  <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages">2.1 The Packages</a></li>
+  <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets">2.2 Datasets</a></li>
+  <li><a href="#importing-datasets-to-r-environment-geocoding" id="toc-importing-datasets-to-r-environment-geocoding" class="nav-link" data-scroll-target="#importing-datasets-to-r-environment-geocoding">2.3 Importing datasets to R environment &amp; Geocoding</a></li>
   </ul></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">3 Exploratory Data Analysis</a></li>
+  <li><a href="#data-wrangling-factors-selection-for-modelling" id="toc-data-wrangling-factors-selection-for-modelling" class="nav-link" data-scroll-target="#data-wrangling-factors-selection-for-modelling">4 Data Wrangling &amp; Factors Selection for Modelling</a>
+  <ul>
+  <li><a href="#structural-predictors" id="toc-structural-predictors" class="nav-link" data-scroll-target="#structural-predictors">4.1 Structural Predictors</a></li>
+  <li><a href="#locational-factors" id="toc-locational-factors" class="nav-link" data-scroll-target="#locational-factors">4.2 Locational Factors</a></li>
+  </ul></li>
+  <li><a href="#explanatory-modelling" id="toc-explanatory-modelling" class="nav-link" data-scroll-target="#explanatory-modelling">5 Explanatory Modelling</a>
+  <ul>
+  <li><a href="#multiple-linear-regression-method-global-ols-model" id="toc-multiple-linear-regression-method-global-ols-model" class="nav-link" data-scroll-target="#multiple-linear-regression-method-global-ols-model">5.1 Multiple Linear Regression Method (Global OLS Model)</a></li>
+  <li><a href="#geographically-weighted-regression-gwr" id="toc-geographically-weighted-regression-gwr" class="nav-link" data-scroll-target="#geographically-weighted-regression-gwr">5.2 Geographically Weighted Regression (GWR)</a></li>
+  </ul></li>
+  <li><a href="#geovisualization" id="toc-geovisualization" class="nav-link" data-scroll-target="#geovisualization">6 Geovisualization</a>
+  <ul>
+  <li><a href="#local-r²-map---goodness-of-fit" id="toc-local-r²-map---goodness-of-fit" class="nav-link" data-scroll-target="#local-r²-map---goodness-of-fit">6.1 Local R² Map - Goodness of Fit</a></li>
+  <li><a href="#spatial-variation-in-key-predictors" id="toc-spatial-variation-in-key-predictors" class="nav-link" data-scroll-target="#spatial-variation-in-key-predictors">6.2 Spatial Variation in Key Predictors</a></li>
+  <li><a href="#residual-map-model-diagnostics" id="toc-residual-map-model-diagnostics" class="nav-link" data-scroll-target="#residual-map-model-diagnostics">6.3 Residual Map – Model Diagnostics</a></li>
+  </ul></li>
+  <li><a href="#interpretation-conclusion" id="toc-interpretation-conclusion" class="nav-link" data-scroll-target="#interpretation-conclusion">7 Interpretation &amp; Conclusion</a>
+  <ul>
+  <li><a href="#overview-key-findings" id="toc-overview-key-findings" class="nav-link" data-scroll-target="#overview-key-findings">7.1 Overview &amp; Key Findings</a></li>
+  <li><a href="#policy-and-practical-implications" id="toc-policy-and-practical-implications" class="nav-link" data-scroll-target="#policy-and-practical-implications">7.2 Policy and Practical Implications</a></li>
+  <li><a href="#limitations-future-works" id="toc-limitations-future-works" class="nav-link" data-scroll-target="#limitations-future-works">7.3 Limitations &amp; Future Works</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -285,14 +313,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 28, 2025</p>
+      <p class="date">November 5, 2025</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 8, 2025</p>
+      <p class="date-modified">November 11, 2025</p>
     </div>
   </div>
     
@@ -304,7 +332,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <section id="introduction" class="level1">
-<h1><strong>1 Introduction</strong></h1>
+<h1>1 Introduction</h1>
 <p><img src="images/clipboard-3867699503.png" class="img-fluid"></p>
 <p><sub><span class="smallcaps"><em>via:&nbsp;PropertyGuru</em></span></sub></p>
 <section id="overview" class="level2">
@@ -314,7 +342,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="objective" class="level2">
 <h2 class="anchored" data-anchor-id="objective">1.2 Objective</h2>
-<p>This exercise aims to develop a <strong>spatially informed model</strong> that identifies and evaluates the factors influencing <strong>HDB 4-room resale flat prices</strong> in Singapore between <strong>1 January 2025 and 30 September 2025</strong>. Specifically, we to address the following questions:</p>
+<p>This exercise aims to develop a <strong>spatially informed model</strong> that identifies and evaluates the factors influencing <strong>HDB 4-room resale flat prices</strong> in Singapore between <strong>1 January 2025 and 30 September 2025</strong>. Specifically, we want to address the following questions:</p>
 <ul>
 <li><p>Which structural and locational factors significantly influence 4-room HDB resale prices?</p></li>
 <li><p>How do these relationships vary spatially across different neighbourhoods in Singapore?</p></li>
@@ -323,9 +351,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 <section id="getting-started" class="level1">
-<h1><strong>2. Getting Started</strong></h1>
+<h1>2 Getting Started</h1>
 <section id="the-packages" class="level2">
-<h2 class="anchored" data-anchor-id="the-packages"><strong>2.1 The Packages</strong></h2>
+<h2 class="anchored" data-anchor-id="the-packages">2.1 The Packages</h2>
 <p>In this exercise, we will use following packages:</p>
 <table class="caption-top table">
 <thead>
@@ -348,41 +376,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using <a href="https://leafletjs.com/">leaflet</a> API.</td>
 </tr>
 <tr class="even">
-<td><a href="https://cran.r-project.org/web/packages/sfdep/index.html"><strong>sfdep</strong></a></td>
-<td>An interface to ‘spdep’ to integrate with ‘sf’ objects and the ‘tidyverse’.</td>
+<td><a href="https://cran.r-project.org/web/packages/GWmodel/index.html"><strong>GWmodel</strong></a></td>
+<td>R package for calibrating geographical weighted family of models</td>
 </tr>
 <tr class="odd">
 <td><a href="https://cran.r-project.org/web/packages/spdep/index.html"><strong>spdep</strong></a></td>
 <td>A collection of functions to create spatial weights matrix objects from polygon ‘contiguities’</td>
 </tr>
 <tr class="even">
-<td><a href="https://cran.r-project.org/web/packages/knitr/index.html"><strong>knitr</strong></a></td>
-<td>Provides a general-purpose tool for dynamic report generation in R using Literate Programming techniques.</td>
+<td><a href="https://www.danieldsjoberg.com/gtsummary/index.html"><strong>gtsummary</strong></a></td>
+<td>Provides an elegant and flexible way to create publication-ready summary tables in R.</td>
 </tr>
 <tr class="odd">
-<td><a href="https://cran.r-project.org/web/packages/rvest/index.html"><strong>rvest</strong></a></td>
-<td>Wrappers around the ‘xml2’ and ‘httr’ packages to make it easy to download, then manipulate, HTML and XML.</td>
+<td><a href="https://olsrr.rsquaredacademy.com/"><strong>olsrr</strong></a></td>
+<td>R package for building OLS and performing diagnostics tests</td>
 </tr>
 <tr class="even">
-<td><a href="https://ggplot2.tidyverse.org/"><strong>ggplot2</strong></a></td>
+<td><a href="https://cran.r-project.org/web/packages/ggplot2/index.html"><strong>ggplot2</strong></a></td>
 <td>Provides graphics plots and mappings.</td>
-</tr>
-<tr class="odd">
-<td><a href="https://cran.r-project.org/web/packages/viridis/index.html"><strong>viridis</strong></a></td>
-<td>Color maps designed to improve graph readability.</td>
-</tr>
-<tr class="even">
-<td><a href="https://cran.r-project.org/web/packages/Kendall/index.html"><strong>Kendall</strong></a></td>
-<td>Kendall Rank Correlation and Mann-Kendall Trend Test.</td>
 </tr>
 </tbody>
 </table>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(httr, tidyverse, sf, tmap, jsonlite, progress, spdep, GWmodel, SpatialML, rsample, Metrics, knitr, kableExtra, spatialRF, randomForestExplainer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, sf, tmap, GWmodel, olsrr, ggplot2, spdep, gtsummary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="datasets" class="level2">
-<h2 class="anchored" data-anchor-id="datasets"><strong>2.2 Datasets</strong></h2>
+<h2 class="anchored" data-anchor-id="datasets">2.2 Datasets</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -394,28 +414,76 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>Passenger Volume by Origin Destination Bus Stops</td>
-<td>Returns number of trips by weekdays and weekends from the origin to destination bus stops.</td>
-<td>JSON/CSV</td>
-<td><a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a></td>
+<td>HDB Resale</td>
+<td>Resale flat prices based on registration date from Jan-2017 onwards</td>
+<td>CSV</td>
+<td><a href="https://data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view">data.gov.sg</a></td>
 </tr>
 <tr class="even">
+<td>Singapore Master Plan 2019 (URA) Zoning Data</td>
+<td>Singapore’s land-use zones: residential, commercial, mixed-use, industrial</td>
+<td>KML</td>
+<td><a href="https://data.gov.sg/datasets/d_0900fdcfdb4666fe2a630f37a532fc06/view">data.gov.sg</a></td>
+</tr>
+<tr class="odd">
 <td>Bus Stop Location</td>
-<td>A point representation to indicate the position where buses should stop to pick up or drop off passengers.</td>
+<td>A point representation to indicate the position where buses should stop to pick up or drop off passengers</td>
 <td>SHP</td>
 <td><a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a></td>
 </tr>
+<tr class="even">
+<td>Shopping Mall coordinates</td>
+<td>Names of all the shopping malls in Singapore and their respective coordinates. The list was gathered from wikipedia through web scraping and their coordinates were gathered using onemap api.</td>
+<td>CSV</td>
+<td><a href="https://www.kaggle.com/datasets/karthikgangula/shopping-mall-coordinates">Kaggle</a></td>
+</tr>
 <tr class="odd">
-<td>Singapore Master Plan 2019 (URA) Zoning Data</td>
-<td>Singapore’s land-use zones: residential, commercial, mixed-use, industrial.</td>
+<td>Eldercare Services</td>
+<td>Directory of Eldercare Services (MOH)</td>
 <td>KML</td>
-<td><a href="https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view">data.gov.sg</a></td>
+<td><a href="https://data.gov.sg/datasets/d_1ee66bb5a41e00b5baadfe00224f649b/view">data.gov.sg</a></td>
+</tr>
+<tr class="even">
+<td>Hawker Centres (KML)</td>
+<td>Directory of Hawker Centres (NEA - National Environment Agency)</td>
+<td>KML</td>
+<td><a href="https://data.gov.sg/datasets/d_ccca3606c337a5c386b9c88dc0dd08b6/view">data.gov.sg</a></td>
+</tr>
+<tr class="odd">
+<td>LTA MRT Station Exit (KML)</td>
+<td>Land Transport Authority. (2018). LTA MRT Station Exit (KML) (2024) [Dataset]. <em>data.gov.sg</em>. Retrieved October 29, 2025</td>
+<td>KML</td>
+<td><a href="https://data.gov.sg/datasets/d_f820139ee3b0865b5512cf61ab7d1122/view">data.gov.sg</a></td>
+</tr>
+<tr class="even">
+<td>LTA School Zone (KML)</td>
+<td>Land Transport Authority. (2016). LTA School Zone (KML) (2024) [Dataset]. <em>data.gov.sg</em>. Retrieved October 29, 2025</td>
+<td>KML</td>
+<td><a href="https://data.gov.sg/datasets/d_7afa83211e3a749d47b7433cd8df3ac2/view">data.gov.sg</a></td>
+</tr>
+<tr class="odd">
+<td>Park Facilities</td>
+<td>Contains the representative location of facilities in Parks which are under the purview of the National Parks Board.</td>
+<td>GEOJSON</td>
+<td><a href="https://data.gov.sg/datasets/d_14d807e20158338fd578c2913953516e/view">data.gov.sg</a></td>
+</tr>
+<tr class="even">
+<td>Pre-Schools Location</td>
+<td>Early Childhood Development Agency. (2023). Pre-Schools Location (2024) [Dataset]. data.gov.sg. Retrieved October 29, 2025</td>
+<td>KML</td>
+<td><a href="https://data.gov.sg/datasets/d_a72bcd23e208d995f3bd4eececeaca43/view">data.gov.sg</a></td>
+</tr>
+<tr class="odd">
+<td>Supermarkets (KML)</td>
+<td>Singapore Food Agency. (2018). Supermarkets (KML) (2024) [Dataset]. data.gov.sg. Retrieved October 29, 2025</td>
+<td>KML</td>
+<td><a href="https://data.gov.sg/datasets/d_8a77ee0446716b2ce475a587004afc73/view">data.gov.sg</a></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="importing-datasets-to-r-environment" class="level2">
-<h2 class="anchored" data-anchor-id="importing-datasets-to-r-environment"><strong>2.3 Importing datasets to R environment</strong></h2>
+<section id="importing-datasets-to-r-environment-geocoding" class="level2">
+<h2 class="anchored" data-anchor-id="importing-datasets-to-r-environment-geocoding">2.3 Importing datasets to R environment &amp; Geocoding</h2>
 <p><strong>Importing HDB Resale Price Dataset</strong></p>
 <p>The data set comprises of HDB resale transactions from Jan 2017 onwards. For the purpose of this exercise, the code chunk below will be used to extract a sub-set of transaction records on 4-Room flat transacted from <strong>1 January 2025 to 30 September 2025</strong>.</p>
 <div class="cell">
@@ -423,7 +491,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(flat_type <span class="sc">==</span> <span class="st">"4 ROOM"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(month <span class="sc">&gt;=</span> <span class="st">"2025-01"</span> <span class="sc">&amp;</span> month <span class="sc">&lt;</span> <span class="st">"2025-10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>In Singapore, sometimes “St” comes at the beginning of the street name and stands for “Saint”, meanwhile those “St” at the end are “Street”. To avoid complications, we will rename those street names with “St” at the beginning to the full “Saint”.</p>
+<p>In Singapore, sometimes “St” comes at the beginning of the street name and stands for “Saint”, meanwhile those “St” at the end stand for “Street”. To avoid complications, we will rename those street names with “St” at the beginning to the full “Saint” (for example Saint George’s Rd).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>HDBresale<span class="sc">$</span>street_name <span class="ot">&lt;-</span> <span class="fu">gsub</span> (</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ST</span><span class="sc">\\</span><span class="st">."</span>, <span class="st">"SAINT"</span>,</span>
@@ -482,29 +550,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(HDBresale_sf, <span class="st">"data/rds/HDBresale_sf.rds"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(HDBresale, <span class="st">"data/rds/HDBresale_1.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Exploratory Data Analysis</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(HDBresale_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 8,679
+Columns: 12
+$ month               &lt;chr&gt; "2025-01", "2025-01", "2025-01", "2025-02", "2025-…
+$ town                &lt;chr&gt; "ANG MO KIO", "ANG MO KIO", "ANG MO KIO", "ANG MO …
+$ flat_type           &lt;chr&gt; "4 ROOM", "4 ROOM", "4 ROOM", "4 ROOM", "4 ROOM", …
+$ block               &lt;chr&gt; "337", "310C", "337", "226", "310C", "226", "304",…
+$ street_name         &lt;chr&gt; "ANG MO KIO AVE 1", "ANG MO KIO AVE 1", "ANG MO KI…
+$ storey_range        &lt;chr&gt; "13 TO 15", "10 TO 12", "10 TO 12", "07 TO 09", "2…
+$ floor_area_sqm      &lt;dbl&gt; 91, 94, 91, 91, 96, 92, 98, 97, 94, 87, 97, 82, 92…
+$ flat_model          &lt;chr&gt; "New Generation", "Model A", "New Generation", "Ne…
+$ lease_commence_date &lt;dbl&gt; 1982, 2012, 1982, 1978, 2012, 1978, 1977, 1977, 20…
+$ remaining_lease     &lt;chr&gt; "56 years 03 months", "86 years 09 months", "56 ye…
+$ resale_price        &lt;dbl&gt; 582000, 865000, 530000, 560000, 1038000, 542000, 6…
+$ geometry            &lt;POINT [m]&gt; POINT (30036.29 38360.76), POINT (29283.45 3…</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level1">
+<h1>3 Exploratory Data Analysis</h1>
+<p>We perform Exploratory Data Analysis (EDA) to have an early observation of the resale price distribution and how they are scattered on the map.</p>
 <p>We can plot the distribution of&nbsp;<em>resale_price</em>&nbsp;by using <em>ggplot</em> as shown in the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>HDBresale_sf, </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span><span class="st">`</span><span class="at">resale_price</span><span class="st">`</span>)) <span class="sc">+</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">20</span>, </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color=</span><span class="st">"black"</span>, </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"light blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>HDBresale_sf, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span><span class="st">`</span><span class="at">resale_price</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">20</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color=</span><span class="st">"black"</span>, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"light blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout callout-style-default callout-note callout-titled" title="Observation">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Observation
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -514,37 +605,37 @@ Note
 <li><p>There is a <strong>long tail extending beyond SGD 1 million</strong>, reflecting a smaller number of high-value flats (likely in <strong>central or mature estates</strong> e.g., Bishan, Toa Payoh, Queenstown).</p></li>
 <li><p>The <strong>positive skewness</strong> suggests that while most 4-room flats remain moderately priced, a minority of premium locations or newly upgraded flats significantly increase the upper price range.</p></li>
 </ul>
-<p>Overall, this distribution highlights a <strong>heterogeneous housing market</strong> - dominated by mid-priced units but with a clear presence of high-end resale transactions in desirable areas.</p>
+<p>Overall, this distribution highlights a <strong>heterogeneous housing market</strong>: dominated by mid-priced units, but with a clear presence of high-end units in desirable areas.</p>
 </div>
 </div>
-<p>We will import Singapore Master Plan 2019 Zoning Data (reused from Take-home Ex2) and have an overview of HDB resales and pricing distribution on the map.</p>
+<p>We will import <strong>Singapore Master Plan 2019 Zoning Data</strong> (re-used from Take-home Ex2) and have an overview of HDB resales and pricing distribution on the map.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/mpsz.rds"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz)<span class="sc">+</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HDBresale_sf) <span class="sc">+</span>  </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">fill =</span> <span class="st">"resale_price"</span>,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill_alpha =</span> <span class="fl">0.6</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="fl">0.5</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">style=</span><span class="st">"quantile"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/mpsz.rds"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz)<span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HDBresale_sf) <span class="sc">+</span>  </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">fill =</span> <span class="st">"resale_price"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill_alpha =</span> <span class="fl">0.6</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="fl">0.5</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">style=</span><span class="st">"quantile"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout callout-style-default callout-note callout-titled" title="Obsevation">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Obsevation
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -563,65 +654,1433 @@ Note
 <p>Overall, the map suggests a clear price gradient decreasing outward from the Central Region, illustrating how <strong>location</strong> and <strong>accessibility</strong> continue to drive HDB resale values.</p>
 </div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>HDBclean <span class="ot">&lt;-</span> HDBresale <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">storey_low =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"^[0-9]+"</span>)),</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">storey_high =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"[0-9]+$"</span>)),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">floor_level =</span> (storey_low <span class="sc">+</span> storey_high) <span class="sc">/</span> <span class="dv">2</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_yrs =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(remaining_lease, <span class="st">"^[0-9]+"</span>)),</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_mths =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(remaining_lease, <span class="st">"(?&lt;=years )[0-9]+"</span>)),</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_mths =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(remaining_lease_mths), <span class="dv">0</span>, remaining_lease_mths),</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_yrs =</span> remaining_lease_yrs <span class="sc">+</span> remaining_lease_mths <span class="sc">/</span> <span class="dv">12</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">flat_age =</span> <span class="dv">2025</span> <span class="sc">-</span> lease_commence_date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>HDBclean1 <span class="ot">&lt;-</span> HDBclean <span class="sc">%&gt;%</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>storey_range, </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>remaining_lease,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>lease_commence_date,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>storey_low, </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>storey_high, </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>remaining_lease_mths)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>HDBclean1_sf <span class="ot">&lt;-</span> HDBclean1 <span class="sc">%&gt;%</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"LONGITUDE"</span>, <span class="st">"LATITUDE"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/PreSchoolsLocation.kml"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Reading layer `PRESCHOOLS_LOCATION' from data source 
-  `C:\sonphamsmu\isss626-aug2526\Take-home_Ex\Take-home_Ex3\data\geospatial\PreSchoolsLocation.kml' 
-  using driver `KML'
-Simple feature collection with 2290 features and 2 fields
-Geometry type: POINT
-Dimension:     XYZ
-Bounding box:  xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134
-z_range:       zmin: 0 zmax: 0
-Geodetic CRS:  WGS 84</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>within_350m <span class="ot">&lt;-</span> <span class="fu">st_is_within_distance</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  HDBresale_sf, preschool, <span class="at">dist =</span> <span class="dv">350</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>HDBresale_sf <span class="ot">&lt;-</span> HDBresale_sf <span class="sc">%&gt;%</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prischool_350m =</span> <span class="fu">map_int</span>(within_350m, length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">##save!!!</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(HDBresale_sf, <span class="st">"data/rds/HDBresale_sf.rds"</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(HDBresale, <span class="st">"data/rds/HDBresale_updated.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-
-
 </section>
+<section id="data-wrangling-factors-selection-for-modelling" class="level1">
+<h1>4 Data Wrangling &amp; Factors Selection for Modelling</h1>
+<section id="structural-predictors" class="level2">
+<h2 class="anchored" data-anchor-id="structural-predictors">4.1 Structural Predictors</h2>
+<p>These structural factors below will be selected to be included in the model. They are extracted from the <code>HDBresale</code> dataset but require some preparation:</p>
+<ul>
+<li><p>Area of the unit (<code>floor_area_sqm</code> ) can be used directly.</p></li>
+<li><p>Floor level <code>(storey_range)</code> will be converted to average number (e.g.&nbsp;“10 TO 12” → 11).</p></li>
+<li><p>Remaining lease will be converted to numeric.</p></li>
+<li><p>Age of the unit will be calculated: (<code>flat_age) = (2025 - lease_commence_date)</code></p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>HDBclean <span class="ot">&lt;-</span> HDBresale <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">storey_low =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"^[0-9]+"</span>)),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">storey_high =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"[0-9]+$"</span>)),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">floor_level =</span> (storey_low <span class="sc">+</span> storey_high) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_yrs =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(remaining_lease, <span class="st">"^[0-9]+"</span>)),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_mths =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(remaining_lease, <span class="st">"(?&lt;=years )[0-9]+"</span>)),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_mths =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(remaining_lease_mths), <span class="dv">0</span>, remaining_lease_mths),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_lease_yrs =</span> remaining_lease_yrs <span class="sc">+</span> remaining_lease_mths <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">flat_age =</span> <span class="dv">2025</span> <span class="sc">-</span> lease_commence_date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Redundant text fields such as the original <code>remaining_lease</code> or <code>storey_range</code> can be dropped to avoid duplication. Then the dataset will be converted to sf object:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>HDBclean <span class="ot">&lt;-</span> HDBclean <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>storey_range, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>remaining_lease,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>lease_commence_date,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>storey_low, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>storey_high, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span>remaining_lease_mths)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"LONGITUDE"</span>, <span class="st">"LATITUDE"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="locational-factors" class="level2">
+<h2 class="anchored" data-anchor-id="locational-factors">4.2 Locational Factors</h2>
+<p>Spatial proximity variables will be included to capture neighbourhood characteristics that may influence resale prices. The variables are:</p>
+<p><strong>Numbers of kindergartens &amp; childcare centers (Pre-schools) within 350m</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/PreSchoolsLocation.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>within_350m <span class="ot">&lt;-</span> <span class="fu">st_is_within_distance</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  HDBclean_sf, preschool, <span class="at">dist =</span> <span class="dv">350</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">preschool_350m =</span> <span class="fu">map_int</span>(within_350m, length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Numbers of schools within 1km</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sch_zone <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/LTASchoolZoneKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>sch_within_1km <span class="ot">&lt;-</span> <span class="fu">st_is_within_distance</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  HDBclean_sf, sch_zone, <span class="at">dist =</span> <span class="dv">1000</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sch_1km =</span> <span class="fu">map_int</span>(sch_within_1km, length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Numbers of bus stop within 350m</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>busstop <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/BusStopLocation_Aug2025/BusStop.shp"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_geometry</span>(busstop) <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>bus_within_350m <span class="ot">&lt;-</span> <span class="fu">st_is_within_distance</span>(</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  HDBclean_sf, busstop, <span class="at">dist =</span> <span class="dv">350</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bus_350m =</span> <span class="fu">map_int</span>(bus_within_350m, length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proxomity to CBD</strong>: for this study, we use <strong>Raffles Place MRT</strong> (approximately the center of the CBD) to estimate distance to CBD.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#reference point (Raffles Place MRT coords)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>cbd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"CBD"</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lon =</span> <span class="fl">103.851959</span>,  </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lat =</span> <span class="fl">1.283099</span>     </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>cbd_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(cbd, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"lon"</span>, <span class="st">"lat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>HDBclean_sf<span class="sc">$</span>prox_cbd_m <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">st_distance</span>(HDBclean_sf, cbd_sf))</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert to km</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>HDBclean_sf<span class="sc">$</span>prox_cbd_km <span class="ot">&lt;-</span> HDBclean_sf<span class="sc">$</span>prox_cbd_m <span class="sc">/</span> <span class="dv">1000</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>prox_cbd_m) <span class="sc">%&gt;%</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">prox_cbd =</span> prox_cbd_km)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proximity to eldercare:</strong> we need to build function to compute the distance to nearest eldercare center (km). This function can be used for other factors as well.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>nearest_dist_km <span class="ot">&lt;-</span> <span class="cf">function</span>(src_pts, poi_pts) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">st_nearest_feature</span>(src_pts, poi_pts)           </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  d   <span class="ot">&lt;-</span> <span class="fu">st_distance</span>(src_pts, poi_pts[idx, ], <span class="at">by_element =</span> <span class="cn">TRUE</span>)  </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>(d) <span class="sc">/</span> <span class="dv">1000</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>eldercare <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/EldercareServicesKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prox_eldercare =</span> <span class="fu">nearest_dist_km</span>(HDBclean_sf, eldercare))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proximity to foodcourt/hawker centres</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>hawker <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/HawkerCentresKML.kml"</span>, <span class="at">quiet =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prox_hawker =</span> <span class="fu">nearest_dist_km</span>(HDBclean_sf, hawker))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proximity to MRT</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>mrt <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/LTAMRTStationExitKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prox_mrt =</span> <span class="fu">nearest_dist_km</span>(HDBclean_sf, mrt))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proximity to supermarket</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>spm <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/SupermarketsKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prox_spm =</span> <span class="fu">nearest_dist_km</span>(HDBclean_sf, spm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proximity to park</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>park <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/ParkFacilities.geojson"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>park <span class="ot">=</span> park <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>UNIQUEID, <span class="sc">-</span>NAME, <span class="sc">-</span>CLASS, <span class="sc">-</span>ADDITIONAL_INFO, <span class="sc">-</span>INC_CRC, <span class="sc">-</span>FMEL_UPD_D)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">prox_park =</span> <span class="fu">nearest_dist_km</span>(HDBclean_sf, park))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Proximity to shopping mall</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mall <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"data/geospatial/shopping_mall_coordinates.csv"</span>) </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>mall <span class="ot">=</span> mall <span class="sc">%&gt;%</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"LONGITUDE"</span>, <span class="st">"LATITUDE"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>HDBclean_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">prox_mall =</span> <span class="fu">nearest_dist_km</span>(HDBclean_sf, mall))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, we rearrange the columns, rename and save for later use as the modelling dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>HDBmodel_sf <span class="ot">&lt;-</span> HDBclean_sf <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(sch_1km, bus_350m, preschool_350m, <span class="at">.after =</span> <span class="fu">last_col</span>())</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(HDBmodel_sf, <span class="st">"data/rds/HDBmodel_sf.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>HDBmodel_sf <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/HDBmodel_sf.rds"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(HDBmodel_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 8,679
+Columns: 22
+$ month               &lt;chr&gt; "2025-01", "2025-01", "2025-01", "2025-02", "2025-…
+$ town                &lt;chr&gt; "ANG MO KIO", "ANG MO KIO", "ANG MO KIO", "ANG MO …
+$ flat_type           &lt;chr&gt; "4 ROOM", "4 ROOM", "4 ROOM", "4 ROOM", "4 ROOM", …
+$ block               &lt;chr&gt; "337", "310C", "337", "226", "310C", "226", "304",…
+$ street_name         &lt;chr&gt; "ANG MO KIO AVE 1", "ANG MO KIO AVE 1", "ANG MO KI…
+$ flat_model          &lt;chr&gt; "New Generation", "Model A", "New Generation", "Ne…
+$ geometry            &lt;POINT [m]&gt; POINT (30036.29 38360.76), POINT (29283.45 3…
+$ resale_price        &lt;dbl&gt; 582000, 865000, 530000, 560000, 1038000, 542000, 6…
+$ floor_area_sqm      &lt;dbl&gt; 91, 94, 91, 91, 96, 92, 98, 97, 94, 87, 97, 82, 92…
+$ floor_level         &lt;dbl&gt; 14, 11, 11, 8, 29, 5, 11, 5, 17, 17, 5, 8, 11, 5, …
+$ remaining_lease_yrs &lt;dbl&gt; 56.25000, 86.75000, 56.16667, 52.00000, 86.66667, …
+$ flat_age            &lt;dbl&gt; 43, 13, 43, 47, 13, 47, 48, 48, 13, 13, 49, 49, 47…
+$ prox_cbd            &lt;dbl&gt; 8.856749, 9.047928, 8.856749, 9.478640, 9.047928, …
+$ prox_eldercare      &lt;dbl&gt; 0.2597684, 0.2549544, 0.2597684, 0.3976108, 0.2549…
+$ prox_hawker         &lt;dbl&gt; 0.3874107, 0.3828329, 0.3874107, 0.1388183, 0.3828…
+$ prox_mrt            &lt;dbl&gt; 0.7178940, 0.7314224, 0.7178940, 0.3836496, 0.7314…
+$ prox_spm            &lt;dbl&gt; 0.2849091, 0.3144801, 0.2849091, 0.1862702, 0.3144…
+$ prox_park           &lt;dbl&gt; 0.33059573, 0.11386252, 0.33059573, 0.28050287, 0.…
+$ prox_mall           &lt;dbl&gt; 0.7562998, 0.6521127, 0.7562998, 0.9599891, 0.6521…
+$ sch_1km             &lt;int&gt; 4, 3, 4, 4, 3, 4, 3, 3, 3, 3, 2, 3, 4, 3, 3, 3, 4,…
+$ bus_350m            &lt;int&gt; 7, 4, 7, 7, 4, 7, 6, 7, 5, 5, 5, 5, 6, 4, 4, 4, 7,…
+$ preschool_350m      &lt;int&gt; 3, 6, 3, 7, 6, 7, 6, 8, 2, 2, 2, 2, 6, 7, 6, 6, 7,…</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="explanatory-modelling" class="level1">
+<h1>5 Explanatory Modelling</h1>
+<p>In this section, we aim to identify and evaluate the factors influencing <strong>4-room HDB resale prices</strong> across Singapore by comparing two modelling approaches:</p>
+<ul>
+<li><p><strong>Global Ordinary Least Squares (OLS)</strong> model, which assumes relationships are constant across space, and</p></li>
+<li><p><strong>Local Geographically Weighted Regression (GWR)</strong> model, which allows relationships to vary spatially.</p></li>
+</ul>
+<section id="multiple-linear-regression-method-global-ols-model" class="level2">
+<h2 class="anchored" data-anchor-id="multiple-linear-regression-method-global-ols-model">5.1 Multiple Linear Regression Method (Global OLS Model)</h2>
+<p>The OLS model provides a baseline to assess how well structural and locational factors explain price variation across all flats, assuming spatial stationarity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>hdb.mlr <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">formula =</span> resale_price <span class="sc">~</span> floor_area_sqm <span class="sc">+</span> flat_age <span class="sc">+</span> floor_level <span class="sc">+</span> remaining_lease_yrs <span class="sc">+</span> prox_cbd <span class="sc">+</span> prox_eldercare <span class="sc">+</span> prox_hawker <span class="sc">+</span> prox_mrt <span class="sc">+</span> prox_spm <span class="sc">+</span> prox_park <span class="sc">+</span> prox_mall <span class="sc">+</span> sch_1km <span class="sc">+</span> bus_350m <span class="sc">+</span> preschool_350m, </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span>HDBmodel_sf)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hdb.mlr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = resale_price ~ floor_area_sqm + flat_age + floor_level + 
+    remaining_lease_yrs + prox_cbd + prox_eldercare + prox_hawker + 
+    prox_mrt + prox_spm + prox_park + prox_mall + sch_1km + bus_350m + 
+    preschool_350m, data = HDBmodel_sf)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-278392  -48045    1184   43637  432733 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)         635981.7   206546.0   3.079 0.002083 ** 
+floor_area_sqm        4968.1      122.9  40.420  &lt; 2e-16 ***
+flat_age             -5939.2     2081.3  -2.854 0.004332 ** 
+floor_level           5919.5      136.8  43.287  &lt; 2e-16 ***
+remaining_lease_yrs   -115.2     2078.5  -0.055 0.955808    
+prox_cbd            -21420.1      240.9 -88.914  &lt; 2e-16 ***
+prox_eldercare       -4798.3     1392.6  -3.446 0.000572 ***
+prox_hawker         -26597.7     1739.2 -15.293  &lt; 2e-16 ***
+prox_mrt            -47136.5     2379.6 -19.808  &lt; 2e-16 ***
+prox_spm             29518.0     4625.7   6.381 1.85e-10 ***
+prox_park           -20893.0     3611.3  -5.785 7.48e-09 ***
+prox_mall           -16796.4     2483.7  -6.763 1.44e-11 ***
+sch_1km              -4784.4      504.6  -9.481  &lt; 2e-16 ***
+bus_350m               909.9      296.8   3.065 0.002183 ** 
+preschool_350m         223.0      305.9   0.729 0.466018    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 73110 on 8664 degrees of freedom
+Multiple R-squared:  0.7931,    Adjusted R-squared:  0.7928 
+F-statistic:  2373 on 14 and 8664 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>In the code chunk below, <a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html"><code>tbl_regression()</code></a> is used to create a well formatted regression report, with model statistics included:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_regression</span>(hdb.mlr, <span class="at">intercept =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_glance_source_note</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">list</span>(sigma <span class="sc">~</span> <span class="st">"\U03C3"</span>),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">include =</span> <span class="fu">c</span>(r.squared, adj.r.squared, </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                AIC, statistic,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>                p.value, sigma))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="bhxhcqgwnb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bhxhcqgwnb table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bhxhcqgwnb thead, #bhxhcqgwnb tbody, #bhxhcqgwnb tfoot, #bhxhcqgwnb tr, #bhxhcqgwnb td, #bhxhcqgwnb th {
+  border-style: none;
+}
+
+#bhxhcqgwnb p {
+  margin: 0;
+  padding: 0;
+}
+
+#bhxhcqgwnb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bhxhcqgwnb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bhxhcqgwnb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bhxhcqgwnb .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bhxhcqgwnb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bhxhcqgwnb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bhxhcqgwnb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bhxhcqgwnb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bhxhcqgwnb .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bhxhcqgwnb .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bhxhcqgwnb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bhxhcqgwnb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bhxhcqgwnb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bhxhcqgwnb .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bhxhcqgwnb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bhxhcqgwnb .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bhxhcqgwnb .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bhxhcqgwnb .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bhxhcqgwnb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bhxhcqgwnb .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bhxhcqgwnb .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bhxhcqgwnb .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bhxhcqgwnb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bhxhcqgwnb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bhxhcqgwnb .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bhxhcqgwnb .gt_left {
+  text-align: left;
+}
+
+#bhxhcqgwnb .gt_center {
+  text-align: center;
+}
+
+#bhxhcqgwnb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bhxhcqgwnb .gt_font_normal {
+  font-weight: normal;
+}
+
+#bhxhcqgwnb .gt_font_bold {
+  font-weight: bold;
+}
+
+#bhxhcqgwnb .gt_font_italic {
+  font-style: italic;
+}
+
+#bhxhcqgwnb .gt_super {
+  font-size: 65%;
+}
+
+#bhxhcqgwnb .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bhxhcqgwnb .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bhxhcqgwnb .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bhxhcqgwnb .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bhxhcqgwnb .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bhxhcqgwnb .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bhxhcqgwnb .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#bhxhcqgwnb .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#bhxhcqgwnb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Beta</strong></th>
+<th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">(Intercept)</td>
+<td class="gt_row gt_center" headers="estimate">635,982</td>
+<td class="gt_row gt_center" headers="conf.low">231,103, 1,040,861</td>
+<td class="gt_row gt_center" headers="p.value">0.002</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">floor_area_sqm</td>
+<td class="gt_row gt_center" headers="estimate">4,968</td>
+<td class="gt_row gt_center" headers="conf.low">4,727, 5,209</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">flat_age</td>
+<td class="gt_row gt_center" headers="estimate">-5,939</td>
+<td class="gt_row gt_center" headers="conf.low">-10,019, -1,859</td>
+<td class="gt_row gt_center" headers="p.value">0.004</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">floor_level</td>
+<td class="gt_row gt_center" headers="estimate">5,920</td>
+<td class="gt_row gt_center" headers="conf.low">5,651, 6,188</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">remaining_lease_yrs</td>
+<td class="gt_row gt_center" headers="estimate">-115</td>
+<td class="gt_row gt_center" headers="conf.low">-4,190, 3,959</td>
+<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">prox_cbd</td>
+<td class="gt_row gt_center" headers="estimate">-21,420</td>
+<td class="gt_row gt_center" headers="conf.low">-21,892, -20,948</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">prox_eldercare</td>
+<td class="gt_row gt_center" headers="estimate">-4,798</td>
+<td class="gt_row gt_center" headers="conf.low">-7,528, -2,069</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">prox_hawker</td>
+<td class="gt_row gt_center" headers="estimate">-26,598</td>
+<td class="gt_row gt_center" headers="conf.low">-30,007, -23,188</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">prox_mrt</td>
+<td class="gt_row gt_center" headers="estimate">-47,136</td>
+<td class="gt_row gt_center" headers="conf.low">-51,801, -42,472</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">prox_spm</td>
+<td class="gt_row gt_center" headers="estimate">29,518</td>
+<td class="gt_row gt_center" headers="conf.low">20,450, 38,586</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">prox_park</td>
+<td class="gt_row gt_center" headers="estimate">-20,893</td>
+<td class="gt_row gt_center" headers="conf.low">-27,972, -13,814</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">prox_mall</td>
+<td class="gt_row gt_center" headers="estimate">-16,796</td>
+<td class="gt_row gt_center" headers="conf.low">-21,665, -11,928</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">sch_1km</td>
+<td class="gt_row gt_center" headers="estimate">-4,784</td>
+<td class="gt_row gt_center" headers="conf.low">-5,774, -3,795</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">bus_350m</td>
+<td class="gt_row gt_center" headers="estimate">910</td>
+<td class="gt_row gt_center" headers="conf.low">328, 1,492</td>
+<td class="gt_row gt_center" headers="p.value">0.002</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">preschool_350m</td>
+<td class="gt_row gt_center" headers="estimate">223</td>
+<td class="gt_row gt_center" headers="conf.low">-377, 823</td>
+<td class="gt_row gt_center" headers="p.value">0.5</td>
+</tr>
+</tbody><tfoot>
+<tr class="gt_sourcenotes odd">
+<td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
+</tr>
+<tr class="gt_sourcenotes even">
+<td colspan="4" class="gt_sourcenote">R² = 0.793; Adjusted R² = 0.793; AIC = 219,052; Statistic = 2,373; p-value = &lt;0.001; σ = 73,110</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Observation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Observation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The multiple linear regression model achieves a strong <strong>adjusted R² of 0.793</strong>, indicating that approximately <strong>79% of the variation in HDB resale prices</strong> can be explained by the included structural and locational variables. The overall model is statistically significant (<em>p</em> &lt; 0.001), confirming that the selected predictors jointly influence housing prices.</p>
+<ul>
+<li><p>Structural factors (esp <strong>floor area</strong> and <strong>floor level</strong>) are consistent, strong price drivers.</p></li>
+<li><p>Locational accessibility factors (eg <strong>proximity to MRT, CBD, and hawker centres)</strong> significantly increase flat prices.</p></li>
+<li><p>Some unexpected signs (e.g., proximity to supermarkets or schools) indicate possible spatial heterogeneity that the OLS model cannot fully capture.</p></li>
+</ul>
+</div>
+</div>
+<p><strong>Spatial Diagnostics:</strong> OLS assumes residuals are spatially independent. This chunk below is to test for spatial autocorrelation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(HDBmodel_sf)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>nb <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords, <span class="at">k =</span> <span class="dv">8</span>))</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>lw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(nb, <span class="at">style =</span> <span class="st">"W"</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">moran.test</span>(<span class="fu">residuals</span>(hdb.mlr), lw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Moran I test under randomisation
+
+data:  residuals(hdb.mlr)  
+weights: lw    
+
+Moran I statistic standard deviate = 158.26, p-value &lt; 2.2e-16
+alternative hypothesis: greater
+sample estimates:
+Moran I statistic       Expectation          Variance 
+     7.972084e-01     -1.152339e-04      2.538081e-05 </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Moran’s I is <strong>significantly positive (p &lt; 0.05)</strong>. This result means that nearby HDB resale prices exhibit similar residual patterns,or spatially clustered. It implies that a spatially varying model, such as Geographically Weighted Regression (GWR), is needed to better capture local variations in how structural and locational factors affect HDB resale prices.</p>
+</div>
+</div>
+</section>
+<section id="geographically-weighted-regression-gwr" class="level2">
+<h2 class="anchored" data-anchor-id="geographically-weighted-regression-gwr">5.2 Geographically Weighted Regression (GWR)</h2>
+<p>Since housing prices often exhibit spatial heterogeneity (different factors matter more in different locations), GWR provides <strong>locally varying coefficients</strong> for each observation.</p>
+<p>In the code chunk below <code>bw.gwr()</code> of GWModel package is used to determine the optimal bandwidth to use in the model. AIC corrected (AICc) approach is used to determine the stopping rule.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>formula_gwr <span class="ot">&lt;-</span> resale_price <span class="sc">~</span> floor_area_sqm <span class="sc">+</span> flat_age <span class="sc">+</span> floor_level <span class="sc">+</span> remaining_lease_yrs <span class="sc">+</span> prox_cbd <span class="sc">+</span> prox_eldercare <span class="sc">+</span> prox_hawker <span class="sc">+</span> prox_mrt <span class="sc">+</span> prox_spm <span class="sc">+</span> prox_park <span class="sc">+</span> prox_mall <span class="sc">+</span> sch_1km <span class="sc">+</span> bus_350m <span class="sc">+</span> preschool_350m</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>bw_gwr <span class="ot">&lt;-</span> <span class="fu">bw.gwr</span>(formula_gwr, <span class="at">data =</span> <span class="fu">as_Spatial</span>(HDBmodel_sf), <span class="at">approach =</span> <span class="st">"AICc"</span>)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>gwr_model <span class="ot">&lt;-</span> <span class="fu">gwr.basic</span>(formula_gwr, <span class="at">data =</span> <span class="fu">as_Spatial</span>(HDBmodel_sf), <span class="at">bw =</span> bw_gwr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As this is a computational intensity and time consuming process, it is wiser to save the output as an rds file for future use without having to re-run the process again.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bw_gwr, <span class="st">"data/rds/bw_gwr.rds"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(gwr_model, <span class="st">"data/rds/gwr_model.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This code chunk is to display the model output:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>gwr_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ***********************************************************************
+   *                       Package   GWmodel                             *
+   ***********************************************************************
+   Program starts at: 2025-11-10 20:32:45.814239 
+   Call:
+   gwr.basic(formula = formula_gwr, data = as_Spatial(HDBmodel_sf), 
+    bw = bw_gwr)
+
+   Dependent (y) variable:  resale_price
+   Independent variables:  floor_area_sqm flat_age floor_level remaining_lease_yrs prox_cbd prox_eldercare prox_hawker prox_mrt prox_spm prox_park prox_mall sch_1km bus_350m preschool_350m
+   Number of data points: 8679
+   ***********************************************************************
+   *                    Results of Global Regression                     *
+   ***********************************************************************
+
+   Call:
+    lm(formula = formula, data = data)
+
+   Residuals:
+    Min      1Q  Median      3Q     Max 
+-278392  -48045    1184   43637  432733 
+
+   Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+   (Intercept)         635981.7   206546.0   3.079 0.002083 ** 
+   floor_area_sqm        4968.1      122.9  40.420  &lt; 2e-16 ***
+   flat_age             -5939.2     2081.3  -2.854 0.004332 ** 
+   floor_level           5919.5      136.8  43.287  &lt; 2e-16 ***
+   remaining_lease_yrs   -115.2     2078.5  -0.055 0.955808    
+   prox_cbd            -21420.1      240.9 -88.914  &lt; 2e-16 ***
+   prox_eldercare       -4798.3     1392.6  -3.446 0.000572 ***
+   prox_hawker         -26597.7     1739.2 -15.293  &lt; 2e-16 ***
+   prox_mrt            -47136.5     2379.6 -19.808  &lt; 2e-16 ***
+   prox_spm             29518.0     4625.7   6.381 1.85e-10 ***
+   prox_park           -20893.0     3611.3  -5.785 7.48e-09 ***
+   prox_mall           -16796.4     2483.7  -6.763 1.44e-11 ***
+   sch_1km              -4784.4      504.6  -9.481  &lt; 2e-16 ***
+   bus_350m               909.9      296.8   3.065 0.002183 ** 
+   preschool_350m         223.0      305.9   0.729 0.466018    
+
+   ---Significance stars
+   Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+   Residual standard error: 73110 on 8664 degrees of freedom
+   Multiple R-squared: 0.7931
+   Adjusted R-squared: 0.7928 
+   F-statistic:  2373 on 14 and 8664 DF,  p-value: &lt; 2.2e-16 
+   ***Extra Diagnostic information
+   Residual sum of squares: 4.631015e+13
+   Sigma(hat): 73055.56
+   AIC:  219051.8
+   AICc:  219051.8
+   BIC:  210630.9
+   ***********************************************************************
+   *          Results of Geographically Weighted Regression              *
+   ***********************************************************************
+
+   *********************Model calibration information*********************
+   Kernel function: bisquare 
+   Fixed bandwidth: 2584.819 
+   Regression points: the same locations as observations are used.
+   Distance metric: Euclidean distance metric is used.
+
+   ****************Summary of GWR coefficient estimates:******************
+                              Min.     1st Qu.      Median     3rd Qu.
+   Intercept           -2.1030e+07  4.9369e+05  9.6438e+05  1.6583e+06
+   floor_area_sqm      -2.5968e+05  2.7524e+03  3.2461e+03  4.8101e+03
+   flat_age            -1.7955e+05 -1.7100e+04 -7.6253e+03 -3.0557e+03
+   floor_level         -1.8691e+04  4.1436e+03  4.7338e+03  5.1689e+03
+   remaining_lease_yrs -1.7293e+05 -1.0184e+04 -2.6996e+03  2.7035e+03
+   prox_cbd            -1.3446e+07 -2.9523e+04 -1.0694e+04  1.3245e+02
+   prox_eldercare      -4.1122e+07 -2.5607e+04 -8.6952e+03  1.2971e+04
+   prox_hawker         -2.9681e+08 -3.7248e+04 -5.2478e+03  1.8946e+04
+   prox_mrt            -4.7517e+05 -1.2235e+05 -6.6235e+04 -4.1954e+04
+   prox_spm            -1.9039e+05 -4.8757e+04 -1.1817e+04  2.4115e+04
+   prox_park           -1.9844e+06 -3.2144e+04 -5.5512e+03  1.5139e+04
+   prox_mall           -2.7548e+06 -3.3887e+04 -7.5842e+03  2.6185e+04
+   sch_1km             -2.5463e+07 -5.8844e+03 -7.2382e+02  5.1657e+03
+   bus_350m            -4.1001e+06 -1.3800e+03  3.6416e+02  2.0274e+03
+   preschool_350m      -3.1274e+05 -1.4244e+03 -4.0945e+02  6.1941e+02
+                             Max.
+   Intercept           1.2430e+08
+   floor_area_sqm      1.0971e+04
+   flat_age            1.6816e+05
+   floor_level         7.4014e+03
+   remaining_lease_yrs 3.7152e+04
+   prox_cbd            8.0370e+06
+   prox_eldercare      5.3731e+05
+   prox_hawker         7.5092e+05
+   prox_mrt            2.4594e+08
+   prox_spm            6.9815e+07
+   prox_park           4.4325e+06
+   prox_mall           7.0108e+07
+   sch_1km             5.0120e+04
+   bus_350m            1.3671e+04
+   preschool_350m      1.3801e+04
+   ************************Diagnostic information*************************
+   Number of data points: 8679 
+   Effective number of parameters (2trace(S) - trace(S'S)): 523.6298 
+   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 8155.37 
+   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): 206331.5 
+   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): 205851.9 
+   BIC (GWR book, Fotheringham, et al. 2002,GWR p. 61, eq. 2.34): 200658.7 
+   Residual sum of squares: 9.6637e+12 
+   R-square value:  0.9568334 
+   Adjusted R-square value:  0.9540614 
+
+   ***********************************************************************
+   Program stops at: 2025-11-10 20:33:02.73187 </code></pre>
+</div>
+</div>
+<p><strong>OLS vs.&nbsp;GWR comparison</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>OLS</th>
+<th>GWR</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AICc</td>
+<td>219052</td>
+<td>206332</td>
+<td>Large drop (≈ 12 700) → GWR fits data far better</td>
+</tr>
+<tr class="even">
+<td>R-square</td>
+<td>0.793</td>
+<td>0.957</td>
+<td>Variance rises sharply → local variation captured</td>
+</tr>
+<tr class="odd">
+<td>Adjusted R-square</td>
+<td>0.793</td>
+<td>0.954</td>
+<td>Stronger overall explanatory power</td>
+</tr>
+<tr class="even">
+<td>Residual SD</td>
+<td>~73110</td>
+<td>~39600</td>
+<td>Lower residual error → better local fit</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The GWR model substantially improves model fit and predictive accuracy over the global OLS model. This confirms that relationships between housing prices and their determinants <strong>vary spatially</strong> across Singapore, rather than remaining constant city-wide.</p>
+</div>
+</div>
+<p><strong>Interpretation from GWR results</strong>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>OLS vs GWR Median</th>
+<th>GWR Range (Min - Max)</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>floor_area_sqm</strong></td>
+<td>≈ +4968 → +5062</td>
+<td>3886 → 7601</td>
+<td>Effect stronger in central/mature estates where space is scarce.</td>
+</tr>
+<tr class="even">
+<td><strong>flat_age</strong></td>
+<td>-5939 → -6280</td>
+<td>-9654 → -3051</td>
+<td>Older flats depreciate more in older towns (e.g., Toa Payoh, Ang Mo Kio).</td>
+</tr>
+<tr class="odd">
+<td><strong>floor_level</strong></td>
+<td>+5920 → +6122</td>
+<td>+4836 → +7423</td>
+<td>Premium for high floors more apparent in dense central areas.</td>
+</tr>
+<tr class="even">
+<td><strong>prox_cbd</strong></td>
+<td>-21420 → -21303</td>
+<td>-30676 → -13677</td>
+<td>Price gradient to CBD strongest in suburban areas, weaker in center areas.</td>
+</tr>
+<tr class="odd">
+<td><strong>prox_mrt</strong></td>
+<td>-47136 → -47046</td>
+<td>-61688 → -29346</td>
+<td>Accessibility premium greater in suburban regions with fewer lines.</td>
+</tr>
+<tr class="even">
+<td><strong>prox_hawker</strong></td>
+<td>-26598 → -26412</td>
+<td>-37010 → -19323</td>
+<td>Accessibility to food is more valuable in newer estates.</td>
+</tr>
+<tr class="odd">
+<td><strong>prox_park</strong></td>
+<td>-20893 → -21037</td>
+<td>-30416 → -13610</td>
+<td>Green-space premium is higher in high-density zones.</td>
+</tr>
+<tr class="even">
+<td><strong>prox_mall</strong></td>
+<td>-16796 → -17222</td>
+<td>-25780 → -10122</td>
+<td>Retail access matters more in surburban areas.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>Spatial heterogeneity</strong> is evident for nearly all predictors: the coefficients’ wide ranges show that the influence of each factor depends on <strong>local context</strong>.</p></li>
+<li><p>Closer to the CBD, structural attributes (floor area, floor level) dominate price formation. In outlying towns (e.g., Punggol, Woodlands), <strong>locational accessibility</strong> (to MRT, malls, hawkers) exerts stronger effect.</p></li>
+<li><p>The consistently negative distances (prox_* variables) confirm that <strong>proximity to amenities raises prices</strong>, but the level of effect varies geographically.</p></li>
+<li><p>Age and remaining lease influence prices relatively uniformly across estates.</p></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Summary">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The GWR analysis confirms that HDB resale price factors are location-dependent. Structural factors (floor size, level) universally influence value, but locational effects such as proximity to MRT, hawker centres, parks, and CBD vary significantly across the island. This spatial heterogeneity highlights the importance of incorporating local context in urban valuation and policy planning, as a single global model cannot capture the complexity of Singapore’s housing market.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="geovisualization" class="level1">
+<h1>6 Geovisualization</h1>
+<p>Visualising model outputs helps reveal <em>where</em> and <em>how strongly</em> structural and locational factors influence resale prices. The maps produced from the GWR outputs display the <strong>spatial heterogeneity</strong> of coefficients and model fit across Singapore.</p>
+<section id="local-r²-map---goodness-of-fit" class="level2">
+<h2 class="anchored" data-anchor-id="local-r²-map---goodness-of-fit">6.1 Local R² Map - Goodness of Fit</h2>
+<p>The results from GWR model will be converted to sf object for plotting. <code>tmap()</code> will be used in this code chunk below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>gwr_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(gwr_model<span class="sc">$</span>SDF) <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"LONGITUDE"</span>, <span class="st">"LATITUDE"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz)<span class="sc">+</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(gwr_sf) <span class="sc">+</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">"Local_R2"</span>,                                 </span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.scale  =</span> <span class="fu">tm_scale</span>(<span class="at">values =</span> <span class="st">"YlGnBu"</span>),</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title =</span> <span class="st">"Local R²"</span>),</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">0.1</span>, <span class="at">border.lwd =</span> <span class="dv">0</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Local Explanatory Power of GWR Model"</span>) <span class="sc">+</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Higher values concentrated in <strong>mature estates</strong> such as <em>Bishan</em>, <em>Toa Payoh</em>, <em>Woodlands</em>. This indicates that the GWR model explains resale-price variation extremely well in these regions, where market activity and data density are high. Lower R² in <em>Punggol</em>, <em>Sengkang</em> suggest uncertainty or different drivers not fully captured (e.g., newer flat designs or unmeasured factors). Overall, spatially varying R² confirms that model performance itself is <strong>location-dependent</strong>.</p>
+</div>
+</div>
+</section>
+<section id="spatial-variation-in-key-predictors" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-variation-in-key-predictors">6.2 Spatial Variation in Key Predictors</h2>
+<p><strong>a. Floor Area (sqm)</strong></p>
+<p>To make more effective visualization, we removes extreme outliers, so the value range (legend) isn’t dominated by a few points.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="fu">quantile</span>(gwr_sf<span class="sc">$</span>floor_area_sqm, <span class="fu">c</span>(.<span class="dv">01</span>,.<span class="dv">99</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>gwr_sf_fix <span class="ot">&lt;-</span> gwr_sf <span class="sc">%&gt;%</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">beta_fa_clip =</span> <span class="fu">pmax</span>(<span class="fu">pmin</span>(floor_area_sqm, q[<span class="dv">2</span>]), q[<span class="dv">1</span>]))</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(q))</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>lims <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span>L, L)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span> <span class="fu">tm_polygons</span>(<span class="at">border.col =</span> <span class="st">"grey80"</span>) <span class="sc">+</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(gwr_sf_fix) <span class="sc">+</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">"beta_fa_clip"</span>,</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.scale  =</span> <span class="fu">tm_scale</span>(<span class="at">values =</span> <span class="st">"-RdBu"</span>, <span class="at">limits =</span> lims),</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title =</span> <span class="st">"β (floor_area_sqm)</span><span class="sc">\n</span><span class="st">(clipped 1–99%)"</span>),</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">0.1</span>, <span class="at">border.lwd =</span> <span class="dv">0</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_title</span>(<span class="st">"Local Effect of Floor Area"</span>) <span class="sc">+</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The premium for additional space is highest in matured, central subzones (Bishan, Queenstown, Toa Payoh - approximately SGD 6,000-8,000/sqm) where housing density and demand pressure are highest.</p>
+<p>In contrast, <strong>outer and newer estates</strong> such as <em>Sengkang</em>, <em>Sembawang</em>, show <strong>weaker effects</strong> (below SGD 3,000/sqm). These areas already have larger average unit sizes and lower overall price levels, so additional space adds less marginal value.</p>
+</div>
+</div>
+<p><strong>b. Distance to CBD (prox_cbd)</strong></p>
+<p>Instead of dots map, we aggregate local coefficients to subzones to make a heat-map style choropleth.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>sz_coef_cbd <span class="ot">&lt;-</span> <span class="fu">st_join</span>(mpsz, gwr_sf) <span class="sc">%&gt;%</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(SUBZONE_N) <span class="sc">%&gt;%</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">beta_fa =</span> <span class="fu">median</span>(prox_cbd, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sz_coef_cbd) <span class="sc">+</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"beta_fa"</span>,</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill.scale  =</span> <span class="fu">tm_scale</span>(<span class="at">values =</span> <span class="st">"-RdBu"</span>),</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title =</span> <span class="st">"prox_cbd"</span>),</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">border.col =</span> <span class="st">"grey70"</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Local Effect of Proximity to CBD"</span>) <span class="sc">+</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Areas such as Yishun, Woodlands exhibit stronger negative coefficients, meaning prices rise sharply closer to the CBD. In contrast, center estates like Toa Payoh, Geylang show positive, suggesting proximity to CBD may not be stronger factor. Overall, central accessibility remains a major value driver, but its influence tapers off toward the center.</p>
+</div>
+</div>
+<p><strong>c.&nbsp;Distance to MRT (prox_mrt)</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>sz_coef_mrt <span class="ot">&lt;-</span> <span class="fu">st_join</span>(mpsz, gwr_sf) <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(SUBZONE_N) <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">beta_fa =</span> <span class="fu">median</span>(prox_mrt, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sz_coef_mrt) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"beta_fa"</span>,</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill.scale  =</span> <span class="fu">tm_scale</span>(<span class="at">values =</span> <span class="st">"-RdBu"</span>),</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title =</span> <span class="st">"prox_mrt"</span>),</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">border.col =</span> <span class="st">"grey70"</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Local Effect of Proximity to MRT"</span>) <span class="sc">+</span></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Negative coefficients indicate that resale prices <strong>decline with increasing distance from MRT stations</strong>. The pattern is quite similar across the island, reflecting stronger reliance on public transport.</p>
+</div>
+</div>
+<p><strong>d.&nbsp;Number of schools within 1km (sch_1km)</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>sz_coef_sch <span class="ot">&lt;-</span> <span class="fu">st_join</span>(mpsz, gwr_sf) <span class="sc">%&gt;%</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(SUBZONE_N) <span class="sc">%&gt;%</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">beta_fa =</span> <span class="fu">median</span>(sch_1km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sz_coef_sch) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"beta_fa"</span>,</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill.scale  =</span> <span class="fu">tm_scale</span>(<span class="at">values =</span> <span class="st">"-RdBu"</span>),</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title =</span> <span class="st">"sch_1km"</span>),</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">border.col =</span> <span class="st">"grey70"</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Local Effect of Number of Schools within 1km"</span>) <span class="sc">+</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The relationship between the number of schools within 1 km and HDB resale prices is generally weak across Singapore. Most subzones indicate negative coefficients, meaning that areas with more nearby schools tend to have slightly lower resale prices. This pattern may reflect oversupply effects - school-dense neighbourhoods often coincide with older, high-density estates where overall flat values are lower.</p>
+</div>
+</div>
+</section>
+<section id="residual-map-model-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="residual-map-model-diagnostics">6.3 Residual Map – Model Diagnostics</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz)<span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(gwr_sf) <span class="sc">+</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">"Stud_residual"</span>,                                 </span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.scale  =</span> <span class="fu">tm_scale</span>(<span class="at">values =</span> <span class="st">"YlGnBu"</span>),</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title =</span> <span class="st">"Residual"</span>),</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span>, <span class="at">border.lwd =</span> <span class="dv">0</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"GWR Model Residuals"</span>) <span class="sc">+</span></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="takehome_ex3_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The residual map shows that <strong>most standardised residuals fall within -5 to +5</strong>, represented by light green and pink points. This indicates that the <strong>GWR model fits the data well</strong> across most regions, with minimal systematic bias.</p>
+<p>A few isolated clusters of positive residuals (green) suggest that the model slightly <strong>underestimates prices</strong> in these estates - possibly due to unmodelled amenities or upcoming transport improvements. Negative residuals (purple) in central areas indicate <strong>minor overestimation</strong> in mature towns with high price variability.</p>
+<p>Overall, the <strong>GWR has effectively reduced spatial autocorrelation</strong>, producing balanced and unbiased local predictions.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="interpretation-conclusion" class="level1">
+<h1>7 Interpretation &amp; Conclusion</h1>
+<section id="overview-key-findings" class="level2">
+<h2 class="anchored" data-anchor-id="overview-key-findings">7.1 Overview &amp; Key Findings</h2>
+<p>The combined results from the OLS and GWR analyses show that <strong>4-room HDB resale prices are shaped by both structural and locational factors</strong>, but these relationships vary spatially across Singapore.</p>
+<p>The global OLS model achieved an adjusted R² of 0.793, while the GWR improved this to 0.954, demonstrating substantial gains in explanatory power once spatial heterogeneity was considered. This confirms that <strong>spatial effects cannot be ignored</strong> when modelling housing markets in a compact yet diverse urban environment like Singapore.</p>
+<p>The overall pattern that we observed so far: central and mature subzones show higher structural premiums, while suburban estates derive more value from locational accessibility. Singapore’s resale market therefore behaves as a <strong>patchwork of local micro-markets</strong>, not a uniform national market.</p>
+</section>
+<section id="policy-and-practical-implications" class="level2">
+<h2 class="anchored" data-anchor-id="policy-and-practical-implications">7.2 Policy and Practical Implications</h2>
+<ul>
+<li><p><strong>Urban planners</strong> can identify where accessibility improvements (e.g., new MRT lines) influence housing the most, therefore can get ready for better planning.</p></li>
+<li><p><strong>Valuers and analysts</strong> should incorporate spatially varying coefficients to improve accuracy in automated valuation models.</p></li>
+<li><p><strong>Buyers and sellers</strong> can interpret local market dynamics more realistically - space and accessibility premiums differ across different neighbourhoods.</p></li>
+</ul>
+</section>
+<section id="limitations-future-works" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-future-works">7.3 Limitations &amp; Future Works</h2>
+<ul>
+<li><p><strong>Data Period:</strong> transactions limited to Jan - Sep 2025; short time frame may not capture seasonal or macroeconomic fluctuations.</p></li>
+<li><p><strong>Variables Selection:</strong> not all locational or socio-economic factors (e.g., school quality, view, renovation level) were available.</p></li>
+<li><p><strong>Model:</strong> GWR assumes fixed bandwidth, coefficients may be unstable in data-sparse areas.</p></li>
+</ul>
+<p>Future work could extend the model to multi-year data, incorporate public-transport accessibility indices, or use multiscale GWR to distinguish neighbourhood-scale vs regional-scale effects.</p>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<p>Wang, Shuli et. al.&nbsp;(2024)&nbsp;“Geographically weighted machine learning for modeling spatial heterogeneity in traffic crash frequency and determinants in US”<em>. Accident analysis and prevention</em>, Vol.199, p.107528. <a href="https://www.sciencedirect.com/science/article/pii/S0001457524000733" class="uri">https://www.sciencedirect.com/science/article/pii/S0001457524000733</a></p>
+<p>Gollini I, Lu B, Charlton M, Brunsdon C, Harris P (2015) “GWmodel: an R Package for exploring Spatial Heterogeneity using Geographically Weighted Models”. <em>Journal of Statistical Software</em>, 63(17):1-50. <a href="https://www.researchgate.net/publication/237000443_GWmodel_An_R_Package_for_Exploring_Spatial_Heterogeneity_Using_Geographically_Weighted_Models" class="uri">https://www.researchgate.net/publication/237000443_GWmodel_An_R_Package_for_Exploring_Spatial_Heterogeneity_Using_Geographically_Weighted_Models</a></p>
+<p>Lu B, Harris P, Charlton M, Brunsdon C (2014) “The GWmodel R Package: further topics for exploring Spatial Heterogeneity using GeographicallyWeighted Models”. <em>Geo-spatial Information Science</em> 17(2): 85-101, <a href="https://www.tandfonline.com/doi/full/10.1080/10095020.2014.917453" class="uri">https://www.tandfonline.com/doi/full/10.1080/10095020.2014.917453</a></p>
+<p>Kam, T. S. (2024). <em>Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method.</em> <a href="https://r4gdsa.netlify.app/chap13.html" class="uri">https://r4gdsa.netlify.app/chap13.html</a></p>
+<p>Kam, T. S. (2024). <em>Geographically Weighted Predictive Models.</em> <a href="https://r4gdsa.netlify.app/chap14" class="uri">https://r4gdsa.netlify.app/chap14</a></p>
+<p>Housing &amp; Development Board (HDB). (2025). <em>3rd Quarter 2025 Public Housing Data and Upcoming Flat Supply.</em> <a href="https://www.hdb.gov.sg/cs/infoweb/about-us/news-and-publications/press-releases/3rd-quarter-2025-public-housing-data-and-upcoming-flat-supply" class="uri">https://www.hdb.gov.sg/cs/infoweb/about-us/news-and-publications/press-releases/3rd-quarter-2025-public-housing-data-and-upcoming-flat-supply</a></p>
+
+
 </section>
 
 </main> <!-- /main -->
