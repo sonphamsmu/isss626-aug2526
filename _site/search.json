@@ -1216,5 +1216,12 @@
     "title": "Take-home Exercise 2: Urban Mobility Pattern Analysis",
     "section": "6.3 Limitations and Future Work",
     "text": "6.3 Limitations and Future Work\nWhile the analyses provide strong spatial-temporal insights, the EHSA results are constrained by the limited number of hourly time slices in AM and PM windows, which reduce statistical sensitivity in trend detection. Future studies could incorporate finer temporal granularity(e.g., 15-minute intervals) or multi-day data to improve the robustness of temporal trend classification. Integrating social or land-use data could also enhance interpretation by linking spatial clusters to underlying urban functions."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex3/takehome_ex3.html#key-findings",
+    "href": "Take-home_Ex/Take-home_Ex3/takehome_ex3.html#key-findings",
+    "title": "Take-home Exercise 3: Modelling HDB Resale Prices with Geographically Weighted Methods",
+    "section": "7.1 Key Findings",
+    "text": "7.1 Key Findings\nThe combined results from the OLS and GWR analyses show that 4-room HDB resale prices are shaped by both structural and locational factors, but these relationships vary spatially across Singapore.\nThe global OLS model achieved an adjusted R² of 0.793, while the GWR improved this to 0.954, demonstrating substantial gains in explanatory power once spatial heterogeneity was considered. This confirms that spatial effects cannot be ignored when modelling housing markets in a compact yet diverse urban environment like Singapore.\nThe overall pattern that we observed so far: central and mature subzones show higher structural premiums, while suburban estates derive more value from locational accessibility. Singapore’s resale market therefore behaves as a patchwork of local micro-markets, not a uniform national market."
   }
 ]

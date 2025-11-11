@@ -43,7 +43,7 @@ This exercise aims to develop a **spatially informed model** that identifies and
 In this exercise, we will use following packages:
 
 | Package | Description |
-|------------------------------------|------------------------------------|
+|----|----|
 | [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
 | [**tidyverse**](https://www.tidyverse.org/) | Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data. |
 | [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API. |
@@ -60,7 +60,7 @@ pacman::p_load(tidyverse, sf, tmap, GWmodel, olsrr, ggplot2, spdep, gtsummary)
 ## 2.2 Datasets
 
 | **Dataset Name** | **Description** | **Format** | **Source** |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | HDB Resale | Resale flat prices based on registration date from Jan-2017 onwards | CSV | [data.gov.sg](https://data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view) |
 | Singapore Master Plan 2019 (URA) Zoning Data | Singapore’s land-use zones: residential, commercial, mixed-use, industrial | KML | [data.gov.sg](https://data.gov.sg/datasets/d_0900fdcfdb4666fe2a630f37a532fc06/view) |
 | Bus Stop Location | A point representation to indicate the position where buses should stop to pick up or drop off passengers | SHP | [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html) |
@@ -516,7 +516,7 @@ gwr_model
 **OLS vs. GWR comparison**
 
 | Metric | OLS | GWR | Interpretation |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | AICc | 219052 | 206332 | Large drop (≈ 12 700) → GWR fits data far better |
 | R-square | 0.793 | 0.957 | Variance rises sharply → local variation captured |
 | Adjusted R-square | 0.793 | 0.954 | Stronger overall explanatory power |
@@ -529,7 +529,7 @@ The GWR model substantially improves model fit and predictive accuracy over the 
 **Interpretation from GWR results**:
 
 | Variable | OLS vs GWR Median | GWR Range (Min - Max) | Interpretation |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **floor_area_sqm** | ≈ +4968 → +5062 | 3886 → 7601 | Effect stronger in central/mature estates where space is scarce. |
 | **flat_age** | -5939 → -6280 | -9654 → -3051 | Older flats depreciate more in older towns (e.g., Toa Payoh, Ang Mo Kio). |
 | **floor_level** | +5920 → +6122 | +4836 → +7423 | Premium for high floors more apparent in dense central areas. |
@@ -711,9 +711,9 @@ A few isolated clusters of positive residuals (green) suggest that the model sli
 Overall, the **GWR has effectively reduced spatial autocorrelation**, producing balanced and unbiased local predictions.
 :::
 
-# 7 Interpretation & Conclusion
+# 7 Discussion
 
-## 7.1 Overview & Key Findings
+## 7.1 Key Findings
 
 The combined results from the OLS and GWR analyses show that **4-room HDB resale prices are shaped by both structural and locational factors**, but these relationships vary spatially across Singapore.
 
