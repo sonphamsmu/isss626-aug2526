@@ -9,7 +9,7 @@
 <meta name="author" content="PHAM Hung Son">
 <meta name="dcterms.date" content="2025-10-04">
 
-<title>In-class Exercise 6 – isss626-aug2526</title>
+<title>In-class Exercise 6: Preparation for Take-home Exercise 2 – isss626-aug2526</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -199,8 +199,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">In-class Exercise 5</span></a>
   </li>  
         <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex06/inclass_ex6.html">
+ <span class="dropdown-text">In-class Exercise 6</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex07/inclass_ex7.html">
  <span class="dropdown-text">In-class Exercise 7</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex08/inclass_ex8.html">
+ <span class="dropdown-text">In-class Exercise 8</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex09/inclass_ex9.html">
@@ -248,21 +256,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#reference" id="toc-reference" class="nav-link active" data-scroll-target="#reference"><strong>Reference</strong></a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">In-class Exercise 6</h1>
+<h1 class="title">In-class Exercise 6: Preparation for Take-home Exercise 2</h1>
 </div>
 
 
@@ -286,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 14, 2025</p>
+      <p class="date-modified">November 12, 2025</p>
     </div>
   </div>
     
@@ -297,11 +299,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Loading R packages</p>
+<p><strong>Loading R packages</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, sf, sfdep, tmap, knitr, rvest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Importing data</p>
+<p><strong>Importing data</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>BusStop <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/ltadata/"</span>,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">layer =</span> <span class="st">"BusStop"</span>) <span class="sc">%&gt;%</span></span>
@@ -363,7 +365,7 @@ Geodetic CRS:  WGS 84</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/ltadata/origin_destination_bus_202508.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Extract Bus Stops within SG</p>
+<p><strong>Extract Bus Stops within SG</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>BusStop_in_SG <span class="ot">&lt;-</span> <span class="fu">st_join</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  BusStop, mpsz,</span>
@@ -383,7 +385,7 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </div>
-<p>Deriving Analytical Hexagon</p>
+<p><strong>Deriving Analytical Hexagon</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>hexagon <span class="ot">&lt;-</span> <span class="fu">st_make_grid</span>(mpsz,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cellsize =</span> <span class="dv">375</span>,</span>
@@ -391,7 +393,7 @@ Geodetic CRS:  WGS 84</code></pre>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">square =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_sf</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Filtering hexagons with bus stops</p>
+<p><strong>Filtering hexagons with bus stops</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hexagon<span class="sc">$</span>n_collisions <span class="ot">=</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lengths</span>(<span class="fu">st_intersects</span>(</span>
@@ -399,7 +401,7 @@ Geodetic CRS:  WGS 84</code></pre>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>hexagon <span class="ot">&lt;-</span> <span class="fu">filter</span>(hexagon, n_collisions <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Assigning ids to each hexagon</p>
+<p><strong>Assigning ids to each hexagon</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>hexagon <span class="ot">&lt;-</span> hexagon <span class="sc">%&gt;%</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(, <span class="sc">-</span>n_collisions) <span class="co">#optional can remove</span></span>
@@ -446,7 +448,7 @@ Geodetic CRS:  WGS 84</code></pre>
 </table>
 </div>
 </div>
-<p>Preparing Trip Generation Data</p>
+<p><strong>Preparing Trip Generation Data</strong></p>
 <p>Cleaning the data</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>trips <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
@@ -619,14 +621,18 @@ Geodetic CRS:  WGS 84</code></pre>
 </table>
 </div>
 </div>
-<section id="reference" class="level2">
-<h2 class="anchored" data-anchor-id="reference"><strong>Reference</strong></h2>
-<ul>
-<li>Kam, T. S. (2024). <em>Emerging Hot Spot Analysis.</em><a href="https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa" class="uri">https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa</a></li>
-</ul>
+<p>Aggregating TRIPS based on HEX_ID</p>
+<p>In the code chunk below, <code>group_by()</code> and <code>summarise()</code> is used to aggregate <em>TRIPS</em> by <em>HEX_ID</em>, <em>DAY_TYPE</em> and <em>HOUR_OF_DAY</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>trips <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    HEX_ID,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    DAY_TYPE,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    HOUR_OF_DAY) <span class="sc">%&gt;%</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

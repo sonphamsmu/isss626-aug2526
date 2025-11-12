@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 6"
+title: "In-class Exercise 6: Preparation for Take-home Exercise 2"
 author: "PHAM Hung Son"
 date: "Oct 04, 2025"
 date-modified: "last-modified"
@@ -14,13 +14,13 @@ execute:
   freeze: true
 ---
 
-Loading R packages
+**Loading R packages**
 
 ```{r}
 pacman::p_load(tidyverse, sf, sfdep, tmap, knitr, rvest)
 ```
 
-Importing data
+**Importing data**
 
 ```{r}
 BusStop = st_read(dsn = "data/ltadata/",
@@ -69,7 +69,7 @@ write_rds(mpsz, "data/rds/mpsz.rds")
 odbus <- read_csv("data/ltadata/origin_destination_bus_202508.csv")
 ```
 
-Extract Bus Stops within SG
+**Extract Bus Stops within SG**
 
 ```{r}
 BusStop_in_SG <- st_join(
@@ -85,7 +85,7 @@ tm_shape(BusStop_in_SG) +
   tm_dots()
 ```
 
-Deriving Analytical Hexagon
+**Deriving Analytical Hexagon**
 
 ```{r}
 hexagon <- st_make_grid(mpsz,
@@ -95,7 +95,7 @@ hexagon <- st_make_grid(mpsz,
   st_sf()
 ```
 
-Filtering hexagons with bus stops
+**Filtering hexagons with bus stops**
 
 ```{r}
 hexagon$n_collisions =
@@ -105,7 +105,7 @@ hexagon$n_collisions =
 hexagon <- filter(hexagon, n_collisions > 0)
 ```
 
-Assigning ids to each hexagon
+**Assigning ids to each hexagon**
 
 ```{r}
 hexagon <- hexagon %>%
@@ -118,7 +118,7 @@ hexagon$HEX_ID <- sprintf(
 kable(head(hexagon))
 ```
 
-Preparing Trip Generation Data
+**Preparing Trip Generation Data**
 
 Cleaning the data
 
@@ -147,7 +147,7 @@ trips <- inner_join(trips, bs_hex)
 kable(head(trips))
 ```
 
-### **Aggregating TRIPS based on HEX_ID**
+Aggregating TRIPS based on HEX_ID
 
 In the code chunk below, `group_by()` and `summarise()` is used to aggregate *TRIPS* by *HEX_ID*, *DAY_TYPE* and *HOUR_OF_DAY*.
 
@@ -159,7 +159,3 @@ trips <- trips %>%
     HOUR_OF_DAY) %>%
   summarise(TRIPS = sum(TRIPS))
 ```
-
-## **Reference**
-
--   Kam, T. S. (2024). *Emerging Hot Spot Analysis.*<https://isss626-ay2025-26aug.netlify.app/in-class_ex/in-class_ex05/in-class_ex05-ehsa>

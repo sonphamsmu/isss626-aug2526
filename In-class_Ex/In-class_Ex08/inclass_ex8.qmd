@@ -1,5 +1,5 @@
 ---
-title: "Inclass Exercise 8: Data Preparation for Hands-on Exercise 8"
+title: "Inclass Exercise 8: Data Preparation for Take-home Exercise 3"
 author: "PHAM Hung Son"
 date: "Oct 25, 2025"
 date-modified: "last-modified"
@@ -124,8 +124,4 @@ resale_split <- initial_split(HDB_sample,
                               prop = 6.67/10,)
 train_data <- training(resale_split)
 test_data <- testing(resale_split)
-```
-
-```{r, eval=FALSE}
-bw_adaptive
 ```
